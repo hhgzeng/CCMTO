@@ -10,7 +10,7 @@ Index Terms—Cooperative co-evolution, evolutionary multitask optimization, evo
 
 Large-scale optimization problems (LSOPs) present substantial challenges in the field of optimization because they involve hundreds to thousands of design variables [1], [2], [3]. As the dimensionality increases, the volume of the design space grows exponentially, making it difficult for optimization algorithms to thoroughly explore such an expansive search space. Furthermore, the rise in dimensions also leads to a rapid increase in the complexity of the objective functions. Decomposition-based methods which employ the strategy of “divide and conquer”, have attracted widely research interest from scholars. Cooperative coevolutionary algorithms (CCEAs) [4], [5] inspired by the ecological phenomenon of mutualism are effective methods for solving LSOPs. CCEAs decompose the original LSOP into a set of lower-dimensional subproblems, each of which can be solved in an independently evolving subpopulation to alleviate the difficulties associated with high dimensionality. 
 
-The first CCEA, named cooperative co-evolutionary genetic algorithm (CCGA), was proposed by [4] in 1994. This framework decomposes an N-dimensional problem into N one-dimensional subproblems, which are then optimized sequentially by genetic algorithm. Nevertheless, not all LSOPs are fully separable, and some of them are difficult to be solved owing to complex interaction among variables. In recent decades, there has been a rapid growth in the research on CCEAs to improve the efficiency and effect. Generally, the improvements in CCEAs mainly focus on the following aspects [5]: (1) Variable grouping strategy: Research on variable grouping strategy can be mainly categorized into dynamic variable grouping and static variable grouping. Dynamic variable grouping implies that the grouping approach will change during the process of coevolution [2], [6], [7], [8]. In contrast, static variable grouping maintains a fixed grouping scheme throughout the optimization process, and several variable interaction identification methods have been developed to improve the accuracy of static variable grouping [9], [10], [11], [12]. (2) Collaborator selection strategy: Many types of collaborator selection strategy, such as single best collaborator selection strategy [4], single worst collaborator selection [13], random collaborator selection strategy [14], elite collaborator selection strategy [15] and so on [16], [17], are employed. (3) Resource allocation strategy: Namely how to determine the order of subproblems to be optimized and how to reasonably allocate the computational resource for subproblems. The existing computational resource allocation strategies are mainly based on contribution of subproblems [18], difficulty of subproblems [19], and different subpopulation sizes [20], [21]. 
+The first CCEA, named cooperative co-evolutionary genetic algorithm (CCGA), was proposed by [4] in 1994. This framework decomposes an $N$-dimensional problem into $N$ one-dimensional subproblems, which are then optimized sequentially by genetic algorithm. Nevertheless, not all LSOPs are fully separable, and some of them are difficult to be solved owing to complex interaction among variables. In recent decades, there has been a rapid growth in the research on CCEAs to improve the efficiency and effect. Generally, the improvements in CCEAs mainly focus on the following aspects [5]: (1) Variable grouping strategy: Research on variable grouping strategy can be mainly categorized into dynamic variable grouping and static variable grouping. Dynamic variable grouping implies that the grouping approach will change during the process of coevolution [2], [6], [7], [8]. In contrast, static variable grouping maintains a fixed grouping scheme throughout the optimization process, and several variable interaction identification methods have been developed to improve the accuracy of static variable grouping [9], [10], [11], [12]. (2) Collaborator selection strategy: Many types of collaborator selection strategy, such as single best collaborator selection strategy [4], single worst collaborator selection [13], random collaborator selection strategy [14], elite collaborator selection strategy [15] and so on [16], [17], are employed. (3) Resource allocation strategy: Namely how to determine the order of subproblems to be optimized and how to reasonably allocate the computational resource for subproblems. The existing computational resource allocation strategies are mainly based on contribution of subproblems [18], difficulty of subproblems [19], and different subpopulation sizes [20], [21]. 
 
 Furthermore, there are studies dedicated to solving complex LSOPs. Tian et al. [22] proposed a reinforcement learningbased (RLDO) framework to efficiently decompose the largescale overlapping problems, and the decomposed subproblems were subsequently integrated into the CC framework for optimization. In [23], a contribution-based cooperative coevolutionary algorithm is designed to decompose and optimize nonseparable large-scale problems with overlapping subcomponents effectively and efficiently. For the constrained LSOPs and expensive LSOPs, some efficient CCEAs have been proposed [24], [25], [26]. 
 
@@ -41,12 +41,12 @@ The rest of this paper is organized as follows: Section II. briefly reviews the 
 Generally, an unconstrained optimization problem can be described as 
 
 $$
-\arg \min _ {\boldsymbol {x} \in R ^ {d}} f (\boldsymbol {x})\tag{1}
+\arg\min_{\mathbf{x} \in \mathbb{R}^d} f(\mathbf{x}) \tag{1}
 $$
 
-where $f ( x )$ is the objective function, and x is a ddimensional vector, called the decision variable or design variable. If d is large enough (usually means that d is much greater than 100 in the field of evolutionary computation), it is called a LSOP. If the analytical expression and gradient of f (x) are not available, it is called a large-scale black-box optimization problem (LSBBOP). CCEAs are one of the representative approaches adopting the “divide and conquer” strategy to address LSOPs. Fig. 1 is a general diagram of CCEA. 
+where $f(\mathbf{x})$ is the objective function, and $\mathbf{x}$ is a $d$-dimensional vector, called the decision variable or design variable. If $d$ is large enough (usually means that $d$ is much greater than 100 in the field of evolutionary computation), it is called a LSOP. If the analytical expression and gradient of $f(\mathbf{x})$ are not available, it is called a large-scale black-box optimization problem (LSBBOP). CCEAs are one of the representative approaches adopting the “divide and conquer” strategy to address LSOPs. Fig. 1 is a general diagram of CCEA. 
 
-In Fig. 1, it can be seen that the original LSOP is decomposed into N low-dimensional subproblems, and the design variables of each subproblem are only a subset of the original problem. The variable grouping strategy generates these subproblems, and the resource allocation strategy selects which subproblem to be optimized in each co-evolutionary cycle after generating subproblems. Any EA can be utilized as the optimization solver to optimize the current subproblem. The red points in Fig. 1 represent collaborators selected from other subproblems, and they are combined to obtain the complete collaborators. Since the design variable in the current subproblem is only a segment of the original problem, individuals in the current subproblem need to combine with complete collaborators to form complete solutions when evaluating their fitness. In separable problems, the collaborator is generally set to the best solution so far. 
+In Fig. 1, it can be seen that the original LSOP is decomposed into $N$ low-dimensional subproblems, and the design variables of each subproblem are only a subset of the original problem. The variable grouping strategy generates these subproblems, and the resource allocation strategy selects which subproblem to be optimized in each co-evolutionary cycle after generating subproblems. Any EA can be utilized as the optimization solver to optimize the current subproblem. The red points in Fig. 1 represent collaborators selected from other subproblems, and they are combined to obtain the complete collaborators. Since the design variable in the current subproblem is only a segment of the original problem, individuals in the current subproblem need to combine with complete collaborators to form complete solutions when evaluating their fitness. In separable problems, the collaborator is generally set to the best solution so far. 
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/3f2a9ad82c6f1b2fd37d1da95e0628e7a6c89e09be63d30cac065cf10fa24062.jpg)
 Fig. 1. Diagram of a general CCEA
@@ -54,29 +54,29 @@ Fig. 1. Diagram of a general CCEA
 Obviously, when the origin LSOP is separable and can be grouped correctly, the optimization performance of CC framework can be great improved [45]. A partially separable problem is defined as follows 
 
 $$
-\underset {x _ {1}, \dots , x _ {k}} {\arg \min} f (\boldsymbol {x}) = \left\{\underset {x _ {1}} {\arg \min} f \left(\boldsymbol {x} _ {1}, \dots\right), \dots , \underset {x _ {k}} {\arg \min} f \left(\dots , \boldsymbol {x} _ {k}\right) \right\}\tag{2}
+\arg\min_{\mathbf{x}_1, \dots, \mathbf{x}_k} f(\mathbf{x}) = \left\{ \arg\min_{\mathbf{x}_1} f(\mathbf{x}_1, \dots), \dots, \arg\min_{\mathbf{x}_k} f(\dots, \mathbf{x}_k) \right\} \tag{2}
 $$
 
-where k is the number of subproblems into which the origin problem can be decomposed, and $\mathbf { \psi } _ { \mathbf { 1 } } \ldots , \mathbf { \psi } _ { \mathbf { k } }$ are mutually exclusive subsets of the d-dimensional decision variable $\boldsymbol { x }$ . if k is equal to $d ,$ each subproblem contains only a onedimensional decision variable and the original problem is called a fully separable problem. 
+where $k$ is the number of subproblems into which the origin problem can be decomposed, and $\boldsymbol{\psi}_1, \dots, \boldsymbol{\psi}_k$ are mutually exclusive subsets of the $d$-dimensional decision variable $\mathbf{x}$. If $k$ is equal to $d$, each subproblem contains only a one-dimensional decision variable and the original problem is called a fully separable problem. 
 
 ### B. Evolutionary Multitask Optimization
 
-Generalized MTOP with K minimization tasks is defined as 
+Generalized MTOP with $K$ minimization tasks is defined as 
 
 $$
-\arg \min f _ {k} (\boldsymbol {x} _ {k}) \boldsymbol {x} _ {k} \in \mathrm{R} ^ {D _ {k}}, \text {   for   } k = 1,..., K\tag{3}
+\arg\min_{\mathbf{x}_k \in \mathbb{R}^{D_k}} f_k(\mathbf{x}_k), \quad \text{for } k = 1, \dots, K \tag{3}
 $$
 
-where $D _ { k }$ is the dimension of decision variables $\boldsymbol { x } _ { k }$ in the kth task. Each task has a corresponding search space, and all of them are transformed into a unified search space Y. For a solution $\boldsymbol { y } _ { k }$ of task $k ,$ its representation $\boldsymbol { x } _ { k }$ in the unified search space is calculated as follows 
+where $D_k$ is the dimension of decision variables $\mathbf{x}_k$ in the $k$-th task. Each task has a corresponding search space, and all of them are transformed into a unified search space $Y$. For a solution $\mathbf{y}_k$ of task $k$, its representation $\mathbf{x}_k$ in the unified search space is calculated as follows 
 
 $$
-\boldsymbol {x} _ {k} = \frac {\boldsymbol {y} _ {k} - \boldsymbol {L} _ {k}}{\boldsymbol {U} _ {k} - \boldsymbol {L} _ {k}}\tag{4}
+\mathbf{x}_k = \frac{\mathbf{y}_k - \mathbf{L}_k}{\mathbf{U}_k - \mathbf{L}_k} \tag{4}
 $$
 
-where $\pmb { L } _ { k }$ and $\pmb { U } _ { k }$ are the lower and upper bounds of $\boldsymbol { y } _ { k }$ , respectively. The dimension of unified search space $D _ { \scriptscriptstyle { Y } }$ is set to the maximum dimension of all tasks, as shown below 
+where $\mathbf{L}_k$ and $\mathbf{U}_k$ are the lower and upper bounds of $\mathbf{y}_k$, respectively. The dimension of unified search space $D_Y$ is set to the maximum dimension of all tasks, as shown below 
 
 $$
-D _ {Y} = \max \left\{D _ {1}, \dots , D _ {K} \right\}\tag{5}
+D_Y = \max \left\{ D_1, \dots, D_K \right\} \tag{5}
 $$
 
 Since Gupta et al. [28] first proposed the multifactorial optimization (MFO) in 2016, the research on EMTO has gradually increased in recent years. The existing EMTO algorithms are mainly based on two knowledge transfer frameworks, the first one is MFO, and the second one is multipopulation evolution (MPE). The general framework of MFO and MPE is shown in **Fig. 2**. 
@@ -85,7 +85,7 @@ Since Gupta et al. [28] first proposed the multifactorial optimization (MFO) in 
 (b) MPE
 Fig. 2. General framework of MFO and MPE
 
-MFO generates only one population to optimize all K tasks, and it assigns the most suitable task to each individual by introducing the indicator called skill factors. MFO performs knowledge transfer across tasks through assortative mating. In order to achieve information transmission between parents and offspring, MFO employs the vertical cultural transmission via selective imitation to endow offspring with skill factors. Multifactorial evolutionary algorithm (MFEA) [28] is the first and most representative MFO algorithm. Afterward, several research on MFO algorithm [37], [46], such as the methods of knowledge transfer, source task selection, and similarity measure between tasks has studied. 
+MFO generates only one population to optimize all $K$ tasks, and it assigns the most suitable task to each individual by introducing the indicator called skill factors. MFO performs knowledge transfer across tasks through assortative mating. In order to achieve information transmission between parents and offspring, MFO employs the vertical cultural transmission via selective imitation to endow offspring with skill factors. Multifactorial evolutionary algorithm (MFEA) [28] is the first and most representative MFO algorithm. Afterward, several research on MFO algorithm [37], [46], such as the methods of knowledge transfer, source task selection, and similarity measure between tasks has studied. 
 
 MPE optimizes multiple tasks through multiple populations, and each population can evolve through two distinct evolution mechanisms: intra-task self-evolution and inter-task crossevolution. Self-evolution involves crossover and mutation among individuals within the same populations. However, this approach cannot facilitate information exchange among distinct tasks. Consequently, an inter-population evolutionary mechanism is essential, and the cross-evolution among tasks is performed at the information exchange nodes. In recent years, many well performing MPE algorithms have emerged [36], [47]. 
 
@@ -93,32 +93,47 @@ MPE optimizes multiple tasks through multiple populations, and each population c
 
 Evolution strategy (ES) is a kind of EA that evolves through probability distribution and is widely used in black-box global optimization. Covariance matrix adaptation ES (CMA-ES) stands out from other ES in global search performance and robustness by introducing a covariance matrix. CMA-ES updates covariance matrix and step size based on the ranking and displacement vector of sampled candidate solutions to search toward the optimal solution adaptively. In recent years, several research studies have tried to introduce knowledge transfer into ES. Li et al. [48] proposed a knowledge-guided external sampling (KGxS) approach and integrated KGxS into ES to develop a multitask ES (MTES) called MTES-KG. This approach includes two types of knowledge transfer methods to transfer samples that employs optimal domain similarity and function shape similarity among tasks. 
 
-#### Algorithm 1: MTES-KG with CMA-ES
-Input: The external sample number: $\tau$ ; tasks number: $K$ ; the knowledge type probability: $\alpha$
-Output: The optimal solution: $x_{1;K}^{*}$ for $k = 1: K$ do
-Set $C_k = I$ , $p_{\sigma,k} = 0$ , $p_{c,k} = 0$ ;
-Initialize $m_k$ in the unified search space;
-end
-while the stop criterion is not met do
-for $k = 1: K$ do
-for $i = 1: \lambda$ do $x_{k,i} \leftarrow m_k + \sigma_k y_{k,i}, y_{k,i} \sim N(0, C_k)$ ; $d_{k,i} \leftarrow \left\| x_{k,i} - m_k \right\|$ ;
-end $\langle d \rangle_{M,k} \leftarrow \frac{1}{\lambda} \sum_{i=1}^{\lambda} d_{k,i}$ ;
-end
-for $k = 1: K$ do
-for $i = \lambda + 1: \lambda + \tau$ do
-Randomly select a task $s (s \neq k)$ as the source task;
-if rand (0,1) < $\alpha$ then $z \leftarrow m_s + \sigma_s y_{s,i}, y_{s,i} \sim N(0, C_s)$ ;
-if $\| z - m_k \| < \langle d \rangle_{M,k}$ then $x_{k,i} \leftarrow z$ ;
-else $x_{k,i} \leftarrow m_k + \langle d \rangle_{M,k} \frac{z - m_k}{\|z - m_k\|}$ ;
-end
-else $\langle y \rangle_S \leftarrow \sum_{i=1, t \neq j}^{\mu} y_{s,t,\mu}, j = rand\_int(1, \mu)$ ; $x_{k,i} \leftarrow m_k + \sigma_k C_k^{\frac{1}{2}} C_s^{-\frac{1}{2}} \langle y \rangle_S$ ;
-end
-end
-for $k = 1: K$ do
-Update distribution
-parameters $m_k; p_{\sigma,k}; p_{c,k}; \sigma_k; C_k$ ;
-end 
-The detailed procedure of MTES-KG with CMA-ES is shown in Algorithm 1. where τ and α are the number of external samples per iteration, and the probability of using the two types of knowledge in KGxS, respectively. The core mechanism of KGxS is to transfer a small number of knowledge-guided samples from source task to target task, thereby providing promising search directions for improving the fitness value of the target task. KGxS is divided into two types of knowledge to transfer. 1) Domian KGxS: The optimal domain knowledge guides the probability distribution of the target task to search toward the distribution position of the source task, as shown in steps 17-22 in Algorithm 1. 2) Shape KGxS: The function shape knowledge provides search preference for the target distribution by learning the distribution of success samples in the source task in steps 24- 25 in Algorithm 1. 
+**Algorithm 1: MTES-KG with CMA-ES**
+
+**Input:** $\tau$ (external sample number), $K$ (number of tasks), $\alpha$ (knowledge type probability)  
+**Output:** $\mathbf{x}_{1:K}^*$ (optimal solution)
+
+1: **for** $k = 1$ **to** $K$ **do**  
+2: &nbsp;&nbsp;&nbsp;&nbsp;Set $\mathbf{C}_k = \mathbf{I}$, $\mathbf{p}_{\sigma,k} = \mathbf{0}$, $\mathbf{p}_{c,k} = \mathbf{0}$ ;  
+3: &nbsp;&nbsp;&nbsp;&nbsp;Initialize $\mathbf{m}_k$ in the unified search space ;  
+4: **end**  
+5: **while** stop criterion is not met **do**  
+6: &nbsp;&nbsp;&nbsp;&nbsp;**for** $k = 1$ **to** $K$ **do**  
+7: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**for** $i = 1$ **to** $\lambda$ **do**  
+8: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\mathbf{x}_{k,i} \leftarrow \mathbf{m}_k + \sigma_k \mathbf{y}_{k,i}, \quad \mathbf{y}_{k,i} \sim \mathcal{N}(\mathbf{0}, \mathbf{C}_k)$ ;  
+9: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$d_{k,i} \leftarrow \|\mathbf{x}_{k,i} - \mathbf{m}_k\|$ ;  
+10: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**end**  
+11: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\langle d \rangle_{M,k} \leftarrow \frac{1}{\lambda} \sum_{i=1}^{\lambda} d_{k,i}$ ;  
+12: &nbsp;&nbsp;&nbsp;&nbsp;**end**  
+13: &nbsp;&nbsp;&nbsp;&nbsp;**for** $k = 1$ **to** $K$ **do**  
+14: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**for** $i = \lambda + 1$ **to** $\lambda + \tau$ **do**  
+15: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Randomly select a source task $s$ ($s \neq k$) ;  
+16: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**if** $\mathrm{rand}(0,1) < \alpha$ **then**  
+17: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\mathbf{z} \leftarrow \mathbf{m}_s + \sigma_s \mathbf{y}_{s,i}, \quad \mathbf{y}_{s,i} \sim \mathcal{N}(\mathbf{0}, \mathbf{C}_s)$ ;  
+18: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**if** $\|\mathbf{z} - \mathbf{m}_k\| < \langle d \rangle_{M,k}$ **then**  
+19: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\mathbf{x}_{k,i} \leftarrow \mathbf{z}$ ;  
+20: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**else**  
+21: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\mathbf{x}_{k,i} \leftarrow \mathbf{m}_k + \langle d \rangle_{M,k} \frac{\mathbf{z} - \mathbf{m}_k}{\|\mathbf{z} - \mathbf{m}_k\|}$ ;  
+22: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**end**  
+23: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**else**  
+24: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select $j = \mathrm{randint}(1, \mu)$ ;  
+25: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\langle \mathbf{y} \rangle_S \leftarrow \sum_{t=1, t \neq j}^{\mu} \mathbf{y}_{s,t}$ ;  
+26: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\mathbf{x}_{k,i} \leftarrow \mathbf{m}_k + \sigma_k \mathbf{C}_k^{\frac{1}{2}} \mathbf{C}_s^{-\frac{1}{2}} \langle \mathbf{y} \rangle_S$ ;  
+27: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**end**  
+28: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**end**  
+29: &nbsp;&nbsp;&nbsp;&nbsp;**end**  
+30: &nbsp;&nbsp;&nbsp;&nbsp;**for** $k = 1$ **to** $K$ **do**  
+31: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Update distribution parameters $\mathbf{m}_k, \mathbf{p}_{\sigma,k}, \mathbf{p}_{c,k}, \sigma_k, \mathbf{C}_k$ ;  
+32: &nbsp;&nbsp;&nbsp;&nbsp;**end**  
+33: **end**  
+34: **Return** $\mathbf{x}_{1:K}^*$ ;
+
+The detailed procedure of MTES-KG with CMA-ES is shown in Algorithm 1, where $\tau$ and $\alpha$ are the number of external samples per iteration and the probability of using the two types of knowledge in KGxS, respectively. The core mechanism of KGxS is to transfer a small number of knowledge-guided samples from source task to target task, thereby providing promising search directions for improving the fitness value of the target task. KGxS is divided into two types of knowledge to transfer. 1) Domain KGxS: The optimal domain knowledge guides the probability distribution of the target task to search toward the distribution position of the source task, as shown in steps 16-22 in Algorithm 1. 2) Shape KGxS: The function shape knowledge provides search preference for the target distribution by learning the distribution of success samples in the source task in steps 23-27 in Algorithm 1. 
 
 ## III. THE PROPOSED METHOD
 
@@ -128,9 +143,9 @@ Traditional CCEAs decompose LSOPs into a series of lower-dimensional subproblems
 
 Although KGxS has been successfully extended to solve MTOPs, there exists some limitations in calculating the mean sample distance of the target task, determining the pulling direction, computing the elite samples’ center position of the source task, and determining the number of elite samples. 
 
-Domain KGxS calculates the mean sample distance of the target distribution N (0, C<sub>k</sub>) as $\left. d \right. _ { M }$ . However, the target sample distribution is scattered during the early iteration process of the algorithm. Employing a fixed $\left. d \right. _ { M }$ would lead to an excessive concentration of the pulled samples’ distribution, thereby diminishing their exploratory value. In the later stages of iteration process, the target sample distribution becomes increasingly localized within regions with high fitness values (i.e., low objective function values for minimization optimization problems). A fixed $\left. d \right. _ { M }$ increases the probability that the pulled samples fall near the distribution boundary, where the corresponding fitness values are relatively lower. Moreover, Domain KGxS pulls the sample z toward the direction from m to z, regardless of whether this direction points towards the direction that increases fitness value of target task. If the pulling direction aligns with the direction of decreasing fitness value, the pulled sample will still fall within regions with lower fitness values, resulting in inefficient utilization of samples. 
+Domain KGxS calculates the mean sample distance of the target distribution $\mathcal{N}(\mathbf{0}, \mathbf{C}_k)$ as $\langle d \rangle_M$. However, the target sample distribution is scattered during the early iteration process of the algorithm. Employing a fixed $\langle d \rangle_M$ would lead to an excessive concentration of the pulled samples’ distribution, thereby diminishing their exploratory value. In the later stages of iteration process, the target sample distribution becomes increasingly localized within regions with high fitness values (i.e., low objective function values for minimization optimization problems). A fixed $\langle d \rangle_M$ increases the probability that the pulled samples fall near the distribution boundary, where the corresponding fitness values are relatively lower. Moreover, Domain KGxS pulls the sample $\mathbf{z}$ toward the direction from $\mathbf{m}$ to $\mathbf{z}$, regardless of whether this direction points towards the direction that increases fitness value of target task. If the pulling direction aligns with the direction of decreasing fitness value, the pulled sample will still fall within regions with lower fitness values, resulting in inefficient utilization of samples. 
 
-Shape KGxS calculates $\langle \boldsymbol { y } \rangle _ { s }$ by applying equal weighting to the top μ elite samples. However, the fitness values among these elite samples can exhibit significant variance. The equal weighting approach diminishes the shape preference of samples with high fitness value, leading to a bias of $\langle \boldsymbol { y } \rangle _ { s }$ towards samples with low fitness value and conveying shape knowledge with low accuracy. Furthermore, the number of elite samples is fixed and equal to μ, whereas the characteristics of source sample distribution can vary significantly during different periods of iteration process. In the initial phase of iteration process, the variance of the sample fitness values is large. Using a large μ introduces elite samples with low fitness values, which can have a negative impact on the acquisition of shape knowledge. Conversely, in the later stages of iteration process, using a small $\mu$ will lose the detailed shape knowledge of elite samples, such as local search preferences. 
+Shape KGxS calculates $\langle \mathbf{y} \rangle_S$ by applying equal weighting to the top $\mu$ elite samples. However, the fitness values among these elite samples can exhibit significant variance. The equal weighting approach diminishes the shape preference of samples with high fitness value, leading to a bias of $\langle \mathbf{y} \rangle_S$ towards samples with low fitness value and conveying shape knowledge with low accuracy. Furthermore, the number of elite samples is fixed and equal to $\mu$, whereas the characteristics of source sample distribution can vary significantly during different periods of iteration process. In the initial phase of iteration process, the variance of the sample fitness values is large. Using a large $\mu$ introduces elite samples with low fitness values, which can have a negative impact on the acquisition of shape knowledge. Conversely, in the later stages of iteration process, using a small $\mu$ will lose the detailed shape knowledge of elite samples, such as local search preferences. 
 
 To address the above issues, a MTES incorporating with dynamic distance threshold and adaptive elite sampling KGxS (MTES-DAKG) is proposed in this paper. It consists of a dynamic distance threshold domain KGxS with gradient correction and an adaptive elite sampling shape KGxS. The first domain KGxS approach increases the probability of samples falling within the region of high fitness values and ensures that the pulled sample always points towards the direction of increasing fitness value of the target distribution. The shape KGxS approach improves the accuracy of transferred shape knowledge. 
 
@@ -142,109 +157,122 @@ In real-world LSOPs, only a negligible number of them have strong correlations a
 
 The proposed CCMTO overall framework is given in Algorithm 2, and Fig. 3 is the flowchart of CCMTO. The original LSOP is decomposed into a series of low-dimensional subproblems by the variable grouping strategy in step 1 of Algorithm 2, then these decomposed subproblems are selected to construct several MTOPs by the construction strategy of multitask optimization problems in step 2. As shown in step 7 of Algorithm 2, the EMTO algorithm is utilized as the optimization solver to optimize the current MTOP, and the contribution of this MTOP is calculated in step 13. After undergoing a whole co-evolutionary cycle, the optimization order is determined by the proposed resource allocation strategy in step 16 of Algorithm 2. 
 
-### C. Construction Strategy of Multitask Optimization Problems
-
-The construction strategy of multitask optimization problems is presented in Algorithm 3. The decomposed subproblems are sorted by the dimension in ascending order, and subproblems with the same dimensions are grouped into a group in step 1 of Algorithm 3. The number of subtasks in a MTOP is set to $n _ { s u b } .$ 
-
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/e40546ceefca9246d3209659c1d9717a5a867449f3bbc5c29f44dbe544800453.jpg)
 
 Fig. 3. Flowchart of CCMTO
 
-#### Algorithm 2: The proposed CCMTO Framework
-Input: The objective function: $f(x)$
-Output: The final optimal global solution: $x^{best}$
-1 Decompose the original LSPO into several subproblems $\{s_1, ..., s_m\} = \text{grouping}(f(x))$ by the variable grouping strategy;
-2 Select subproblems to construct MTOPs $\{T_1, ..., T_k\} = \text{MTOPs\_construction}(\{s_1, ..., s_m\})$ ;
-3 Set contributions $\Delta F_i = 0 \quad i = 1, ..., k$ , best solution so far: $x^{best}$ ;
-4 while the stop criterion is not met do
-5 for $i = 1$ to $k$ do
-6 Set last best solution $x_{last}^{best} = x^{best}$ ;
-7 Optimize the current MTOP $T_i = \{t_{i,1}, ..., t_{i,n_i}\}$ ;
-8 Obtain the optimal solution of each task: $x_{e_{i,j}}^{best} = \arg \min f(x_{e_{i,j}}; x_{e_{i,j}}^{best}) \quad j = 1, ...n_i$ ;
-9 Update the optimal solution of current MTOP $T_i$ : $x_{e_{i}}^{best} = \{x_{e_{i,1}}^{best}, ..., x_{e_{i,n_i}}^{best}\}$ ;
-10 if $f(x_{e_{i}}^{best}; x_{e_{i}}^{best}) < f(x^{best})$ then
-11 Set $x^{best} = \{x_{e_{i}}^{best}; x_{e_{i}}^{best}\}$ ;
-12 end
-13 Update the contribution $\Delta F_i$ of current MTOP;
-14 end
-15 while $\min(\Delta F_i | i = 1, ...k) \neq \max(\Delta F_i | i = 1, ...k)$ do
-16 Determine index $i$ of the MTOP to be optimized;
-17 Repeat steps 6 to 13;
-18 end
-19 end 
-As is well known, the dimension of unified search space is set to the maximum dimension of all tasks in EMTO algorithms, so the dimensional disparity among tasks is an important factor affecting the efficiency of optimization. Excessive dimensional differences between tasks can lead to poor optimal solution performance and waste of computational resources. The maximum dimension ratio $d _ { m a x }$ is introduced in the strategy. When there is only one subproblem in a group, if the dimensional difference between this subproblem and the subproblem in the nearest group is too large, this subproblem will be optimized separately. If the dimension ratio of this subproblem and the subproblem in the nearest group is within $[ 1 / d _ { m a x } , ~ d _ { m a x } ]$ , this subproblem is put into the nearest group. For subproblems in the same group, if their number is greater than 1 and not greater than $n _ { s u b } ,$ these subproblems are constructed to a MTOP in step 19 of Algorithm 3. Otherwise, every $n _ { s u b }$ subproblems are selected randomly as a MTOP to construct a series of MTOPs in step 21 of Algorithm 3. The number of subproblems to construct each MTOP is also a significant factor, as too many or too few subproblems can affect the optimization efficiency. The parameter sensitivity discussions on the $d _ { m a x }$ and $n _ { s u b }$ are in Section IV. 
+**Algorithm 2: The Proposed CCMTO Framework**
 
-#### Algorithm 3: Construction Strategy of Multitask Optimization Problems
-Input: The decomposed subproblems: $\{s_{1},...,s_{m}\}$ ; the corresponding dimension of each subproblem: $\{d_{1},...,d_{m}\}$ ; the number of subtasks in a MTOP: $n_{sub}$ ; the maximum dimension ratio: $d_{max}$
-Output: The constructed MTOPs: $\{T_{1},...,T_{k}\}$
-1 Sort subproblems by the dimension in ascending order, and group subproblems with the same dimensions into one group: $Group_{i}=\{s_{1,1},...,s_{1,n_{i}}\},...,Group_{j}=\{s_{j,1},...,s_{j,n_{j}}\}$ , and the dimension of subproblems in each group is $D_{1},...,D_{j}$ ;
-2 for i=1 to j do
-3 if card( $Group_{i}$ )=1 then
-4 if $D_{i}/D_{i-1}>d_{max}$ and $D_{i+1}/D_{i}>d_{max}$ then
-5 See the subproblem $s_{i,1}$ as a single task and optimize it separately;
-6 elseif $D_{i+1}/D_{i}<d_{max}$ then
-7 Put the subproblem $s_{i,1}$ into $Group_{i+1}$ ;
-8 else
-9 Put the subproblem $s_{i,1}$ into $Group_{i-1}$ ;
-10 end
-11 end
-12 end
-13 for i=1 to sum(Group) do
-14 if card( $Group_{i}$ )=1 then
-15 See the subproblem $s_{i,1}$ as a single task and optimize it separately;
-16 elseif $1<card(Group_{i})\leq n_{sub}$ then
-17 Select all subproblems to construct a MTOP $T_{i,1}$ ;
-18 else
-19 Randomly select each $n_{sub}$ subproblems as a MTOP to construct m
-20 MTOPs: $\left\{T_{i,1}=\{t_{i,1},...,t_{i,n_{sub}}\},...,T_{m,1}=\{t_{m,1},...,t_{m,n_{sub}}\}\right\}$ ;
-21 end
-22 end 
+**Input:** $f(\mathbf{x})$ (objective function)  
+**Output:** $\mathbf{x}^{\mathrm{best}}$ (final optimal global solution)
+
+1: $\{s_1, \dots, s_m\} \leftarrow \mathrm{Grouping}(f(\mathbf{x}))$ via variable grouping strategy ;  
+2: $\{T_1, \dots, T_k\} \leftarrow \mathrm{MTOPs\_Construction}(\{s_1, \dots, s_m\})$ (Algorithm 3) ;  
+3: Initialize contributions $\Delta F_i = 0$ ($i = 1, \dots, k$) and global best solution $\mathbf{x}^{\mathrm{best}}$ ;  
+4: **while** stop criterion is not met **do**  
+5: &nbsp;&nbsp;&nbsp;&nbsp;**for** $i = 1$ **to** $k$ **do**  
+6: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set last best solution $\mathbf{x}_{\mathrm{last}}^{\mathrm{best}} \leftarrow \mathbf{x}^{\mathrm{best}}$ ;  
+7: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Optimize current MTOP $T_i = \{t_{i,1}, \dots, t_{i,n_i}\}$ ;  
+8: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Obtain optimal solution of each task: $\mathbf{x}_{e_{i,j}}^{\mathrm{best}} = \arg\min f(\mathbf{x}_{e_{i,j}}; \mathbf{x}_{\notin e_{i,j}}^{\mathrm{best}}), \, j = 1, \dots, n_i$ ;  
+9: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Update optimal solution of $T_i$: $\mathbf{x}_{e_i}^{\mathrm{best}} \leftarrow \{\mathbf{x}_{e_{i,1}}^{\mathrm{best}}, \dots, \mathbf{x}_{e_{i,n_i}}^{\mathrm{best}}\}$ ;  
+10: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**if** $f(\mathbf{x}_{e_i}^{\mathrm{best}}; \mathbf{x}_{\notin e_i}^{\mathrm{best}}) < f(\mathbf{x}^{\mathrm{best}})$ **then**  
+11: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\mathbf{x}^{\mathrm{best}} \leftarrow \{\mathbf{x}_{e_i}^{\mathrm{best}}; \mathbf{x}_{\notin e_i}^{\mathrm{best}}\}$ ;  
+12: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**end**  
+13: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Update contribution $\Delta F_i$ of current MTOP ;  
+14: &nbsp;&nbsp;&nbsp;&nbsp;**end**  
+15: &nbsp;&nbsp;&nbsp;&nbsp;**while** $\min_{i=1,\dots,k}(\Delta F_i) \neq \max_{i=1,\dots,k}(\Delta F_i)$ **do**  
+16: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Determine index $i$ of the MTOP to be optimized ;  
+17: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Repeat steps 6 to 13 ;  
+18: &nbsp;&nbsp;&nbsp;&nbsp;**end**  
+19: **end**  
+20: **Return** $\mathbf{x}^{\mathrm{best}}$ ;
+
+### C. Construction Strategy of Multitask Optimization Problems
+
+The construction strategy of multitask optimization problems is presented in Algorithm 3. The decomposed subproblems are sorted by the dimension in ascending order, and subproblems with the same dimensions are grouped into a group in step 1 of Algorithm 3. The number of subtasks in a MTOP is set to $n_{\mathrm{sub}}$. 
+
+As is well known, the dimension of unified search space is set to the maximum dimension of all tasks in EMTO algorithms, so the dimensional disparity among tasks is an important factor affecting the efficiency of optimization. Excessive dimensional differences between tasks can lead to poor optimal solution performance and waste of computational resources. The maximum dimension ratio $d_{\max}$ is introduced in the strategy. When there is only one subproblem in a group, if the dimensional difference between this subproblem and the subproblem in the nearest group is too large, this subproblem will be optimized separately. If the dimension ratio of this subproblem and the subproblem in the nearest group is within $[1 / d_{\max}, d_{\max}]$, this subproblem is put into the nearest group. For subproblems in the same group, if their number is greater than 1 and not greater than $n_{\mathrm{sub}}$, these subproblems are constructed to a MTOP in step 17 of Algorithm 3. Otherwise, every $n_{\mathrm{sub}}$ subproblems are selected randomly as a MTOP to construct a series of MTOPs in step 19 of Algorithm 3. The number of subproblems to construct each MTOP is also a significant factor, as too many or too few subproblems can affect the optimization efficiency. The parameter sensitivity discussions on $d_{\max}$ and $n_{\mathrm{sub}}$ are in Section IV. 
+
+**Algorithm 3: Construction Strategy of Multitask Optimization Problems**
+
+**Input:** $\{s_{1}, \dots, s_{m}\}$ (decomposed subproblems), $\{d_{1}, \dots, d_{m}\}$ (subproblem dimensions), $n_{\mathrm{sub}}$ (number of subtasks in a MTOP), $d_{\max}$ (maximum dimension ratio)  
+**Output:** $\{T_{1}, \dots, T_{k}\}$ (constructed MTOPs)
+
+1: Sort subproblems by dimension in ascending order, and group subproblems with identical dimensions: $Group_1 = \{s_{1,1}, \dots, s_{1,n_1}\}, \dots, Group_j = \{s_{j,1}, \dots, s_{j,n_j}\}$, with dimensions $D_1, \dots, D_j$ ;  
+2: **for** $i = 1$ **to** $j$ **do**  
+3: &nbsp;&nbsp;&nbsp;&nbsp;**if** $\mathrm{card}(Group_i) == 1$ **then**  
+4: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**if** $D_i / D_{i-1} > d_{\max}$ **and** $D_{i+1} / D_i > d_{\max}$ **then**  
+5: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Treat subproblem $s_{i,1}$ as a single task and optimize separately ;  
+6: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**elseif** $D_{i+1} / D_i \le d_{\max}$ **then**  
+7: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add subproblem $s_{i,1}$ into $Group_{i+1}$ ;  
+8: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**else**  
+9: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add subproblem $s_{i,1}$ into $Group_{i-1}$ ;  
+10: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**end**  
+11: &nbsp;&nbsp;&nbsp;&nbsp;**end**  
+12: **end**  
+13: **for** $i = 1$ **to** $\mathrm{num\_groups}$ **do**  
+14: &nbsp;&nbsp;&nbsp;&nbsp;**if** $\mathrm{card}(Group_i) == 1$ **then**  
+15: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Treat subproblem $s_{i,1}$ as a single task and optimize separately ;  
+16: &nbsp;&nbsp;&nbsp;&nbsp;**elseif** $1 < \mathrm{card}(Group_i) \le n_{\mathrm{sub}}$ **then**  
+17: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select all subproblems in $Group_i$ to construct a MTOP $T_{i,1}$ ;  
+18: &nbsp;&nbsp;&nbsp;&nbsp;**else**  
+19: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Partition $Group_i$ by randomly selecting every $n_{\mathrm{sub}}$ subproblems to construct MTOPs $\{T_{i,1}, \dots, T_{i,m}\}$ ;  
+20: &nbsp;&nbsp;&nbsp;&nbsp;**end**  
+21: **end**  
+22: **Return** $\{T_{1}, \dots, T_{k}\}$ ;
 
 ### D. MTES with Dynamic Distance Threshold and Adaptive Elite Sampling KGxS
 
-1) Dynamic Distance Threshold Domain KGxS with Gradient Correction: Dynamic distance threshold domain KGxS with gradient correction divides the samples from the target distribution into different regions according to their fitness values, and calculates dynamic distance threshold for each region to replace the fixed $\left. d \right. _ { M }$ . The sample z generated by the source distribution is assigned to the nearest region by calculating the mean distance between z and samples in each region. The gradient correction strategy estimates the gradient at the expectation of the target distribution to determine whether the vector direction from the sample generated by source distribution to the expectation of the target distribution is towards the direction of increasing fitness value. This strategy fine tunes the vector direction of the sample if it is towards the direction of decreasing fitness value. 
+1) Dynamic Distance Threshold Domain KGxS with Gradient Correction: Dynamic distance threshold domain KGxS with gradient correction divides the samples from the target distribution into different regions according to their fitness values, and calculates dynamic distance threshold for each region to replace the fixed $\langle d \rangle_M$. The sample $\mathbf{z}$ generated by the source distribution is assigned to the nearest region by calculating the mean distance between $\mathbf{z}$ and samples in each region. The gradient correction strategy estimates the gradient at the expectation of the target distribution to determine whether the vector direction from the sample generated by source distribution to the expectation of the target distribution is towards the direction of increasing fitness value. This strategy fine tunes the vector direction of the sample if it is towards the direction of decreasing fitness value. 
 
 Suppose that all tasks are minimization optimization problems, the general framework of the proposed dynamic distance threshold domain KGxS with gradient correction is given in Algorithm 4. In the first step, the samples of target distribution are sort by fitness values in descending order into different regions, the detailed regions are defined as follows 
 
 $$
-\begin{array}{l} S _ {h i g h} = \left\{\boldsymbol {x} _ {1: \mu_ {1} * \lambda} ^ {\text { order }}, \boldsymbol {x} ^ {\text { order }} \sim N (\boldsymbol {m} _ {t}, \boldsymbol {C} _ {t}) \right\} \\ S _ {m i d} = \left\{\boldsymbol {x} _ {\mu_ {1} * \lambda : (\mu_ {1} + \mu_ {2}) * \lambda} ^ {\text { order }}, \boldsymbol {x} ^ {\text { order }} \sim N (\boldsymbol {m} _ {t}, \boldsymbol {C} _ {t}) \right\} \\ S _ {l o w} = \left\{\boldsymbol {x} _ {(\mu_ {1} + \mu_ {2}) * \lambda : \lambda} ^ {\text { order }}, \boldsymbol {x} ^ {\text { order }} \sim N (\boldsymbol {m} _ {t}, \boldsymbol {C} _ {t}) \right\} \end{array}\tag{6}
+\begin{aligned}
+S_{\mathrm{high}} &= \left\{ \mathbf{x}_{1:\mu_1 \lambda}^{\mathrm{order}} \mid \mathbf{x}^{\mathrm{order}} \sim \mathcal{N}(\mathbf{m}_t, \mathbf{C}_t) \right\} \\
+S_{\mathrm{mid}} &= \left\{ \mathbf{x}_{\mu_1 \lambda : (\mu_1 + \mu_2) \lambda}^{\mathrm{order}} \mid \mathbf{x}^{\mathrm{order}} \sim \mathcal{N}(\mathbf{m}_t, \mathbf{C}_t) \right\} \\
+S_{\mathrm{low}} &= \left\{ \mathbf{x}_{(\mu_1 + \mu_2) \lambda : \lambda}^{\mathrm{order}} \mid \mathbf{x}^{\mathrm{order}} \sim \mathcal{N}(\mathbf{m}_t, \mathbf{C}_t) \right\}
+\end{aligned} \tag{6}
 $$
 
-where $\lambda$ is the number of samples of target distribution, $x ^ { \mathrm { o r d e r } }$ is target distribution samples sorted by their fitness values in the 
+where $\lambda$ is the number of samples of target distribution, $\mathbf{x}^{\mathrm{order}}$ is target distribution samples sorted by their fitness values in the descending order, $\mu_1$ and $\mu_2$ are the proportion coefficients of samples in the first and second regions, respectively. 
 
-#### Algorithm 4: Dynamic Distance Threshold Domain KGxS with Gradient Correction
-Input: The target task samples: $X_t = \{x_{t,1}, ..., x_{t,\lambda}\} \sim N(m_t, C_t)$ ; the dimension of decision variable: n; KNN neighbor count: k; gradient perturbation step: β; the source task distribution: $N(m_s, C_s)$
-Output: Knowledge-guided external sample: $\hat{x}$
-1 Sort $X_t$ by the fitness value in descending order into different regions $\{S_{high}; S_{mid}; S_{low}\}$ ;
-2 Calculate dynamic distance threshold $\langle d \rangle_{high}, \langle d \rangle_{mid}, \langle d \rangle_{low}$ ;
-3 Generate sample $z \sim N(m_s, C_s)$ ;
-4 for each region $S_g \in \{S_{high}; S_{mid}; S_{low}\}$ , g = high, mid, low do
-5 Calculate $\text{dist}(z, x) = \|z - x\|$ for all $x \in S_g$ ;
-6 Sort $\text{dist}(z, x)$ in ascending order, and take the top k as $K - NN_g$ ;
-7 Calculate the average distance: $\text{avg\_dist}_g = \frac{1}{k} \sum_{x \in K - NN_g} \text{dist}(z, x)$ ;
-8 end
-9 Determine region affiliation: $S_{g^*} = \arg\min(\text{avg\_dist}_{high}, \text{avg\_dist}_{mid}, \text{avg\_dist}_{low})$ ;
-10 Generate n unit vectors $e_1, ...e_n$ ;
-11 for i = 1: n do
-12 Calculate gradient component: $g_i = \frac{f(m_t + \beta \cdot e_i) - f(m_t - \beta \cdot e_i)}{2\beta}$ ;
-13 Calculate optimal direction vector component: $g_i^{opt} = \begin{cases} -g_i, & \text{if } g_i > 0 \\ g_i, & \text{if } g_i \leq 0 \end{cases}$ ;
-14 end
-15 Normalized optimal direction vector is represented as: $g_{grad}^{opt} = \frac{[g_1^{opt}, ..., g_n^{opt}]^T}{\left\|\left[g_1^{opt}, ..., g_n^{opt}\right]^T\right\|}$ ;
-16 Calculate direction vector: $v = \frac{z - m_t}{\|z - m_t\|}$ ;
-17 Calculate angle between v and $g_{grad}^{opt}$ : $\theta = \arccos\left(\frac{v \cdot g_{grad}^{opt}}{\|v\| \cdot \|g_{grad}^{opt}\|}\right)$ ;
-18 if $\theta < 90^\circ$ then
-19 if $\|z - m_t\| < \langle d \rangle_g^*$ then
-20 $\hat{x} \gets z$ ;
-21 else
-22 $\hat{x} \gets m_t + \langle d \rangle_g^* \cdot v$ ;
-23 end
-24 else
-25 Calculate the correction vector $v'$ ;
-26 $\hat{x} \gets m_t + \langle d \rangle_g^* \cdot v'$ ;
-27 end 
-descending order, $\mu _ { 1 }$ and $\mu _ { 2 }$ are the proportion coefficients of samples in the first and second regions, respectively. 
-The dynamic distance threshold $\left. d \right. _ { g } .$ is calculated to obtain the mean distance of samples from the expectation ${ \pmb { m } } _ { t }$ of the target distribution in each region in step 2 of Algorithm 4. Next, the sample z is generated by the source distribution in step 3. The region affiliation of z is determined in steps 4-9 of Algorithm 4. First, for each region, the distances from z to all samples within the region are calculated and sorted in ascending order. Then, by using K-Nearest Neighbor algorithm, the average of the first k distances is computed, and the sample z is assigned to the region with the smallest average distance. The normalized optimal direction vector at the target expectation m<sub>t</sub> is estimated in steps 10-15 of Algorithm 4. The direction vector from m<sub>t</sub> to z, as well as the angle between direction vector and optimal direction vector, is calculated in steps 16-17 of Algorithm 4. If the angle is less than 90°and the distance from m<sub>t</sub> to z is less than the $\left. d \right. _ { g ^ { * } }$ , i.e., 
-z is in the domain of the target distribution and the direction vector is towards the direction that increases fitness value of target task, the sample z is directly received as an external sample. If the angle is less than $9 0 ^ { \circ }$ but this distance is more than $\left. d \right. _ { g ^ { * } }$ , z is pulled toward ${ \pmb { m } } _ { t }$ as length as $\left. d \right. _ { g ^ { * } }$ . When the angle is more than 90°, z is pulled toward the correction vector $\nu ^ { \ast }$ as length as $\left. d \right. _ { g } .$ . The correction vector $\nu ^ { \ast }$ is calculated as follows 
+**Algorithm 4: Dynamic Distance Threshold Domain KGxS with Gradient Correction**
+
+**Input:** $X_t = \{\mathbf{x}_{t,1}, \dots, \mathbf{x}_{t,\lambda}\} \sim \mathcal{N}(\mathbf{m}_t, \mathbf{C}_t)$ (target task samples), $n$ (dimension), $k$ (KNN count), $\beta$ (gradient step), $\mathcal{N}(\mathbf{m}_s, \mathbf{C}_s)$ (source distribution)  
+**Output:** $\hat{\mathbf{x}}$ (knowledge-guided external sample)
+
+1: Sort $X_t$ by fitness value in descending order into regions $\{S_{\mathrm{high}}, S_{\mathrm{mid}}, S_{\mathrm{low}}\}$ according to Eq. (6) ;  
+2: Calculate dynamic distance thresholds $\langle d \rangle_{\mathrm{high}}, \langle d \rangle_{\mathrm{mid}}, \langle d \rangle_{\mathrm{low}}$ ;  
+3: Sample $\mathbf{z} \sim \mathcal{N}(\mathbf{m}_s, \mathbf{C}_s)$ ;  
+4: **for** each region $S_g \in \{S_{\mathrm{high}}, S_{\mathrm{mid}}, S_{\mathrm{low}}\}$ ($g \in \{\mathrm{high}, \mathrm{mid}, \mathrm{low}\}$) **do**  
+5: &nbsp;&nbsp;&nbsp;&nbsp;Calculate $\mathrm{dist}(\mathbf{z}, \mathbf{x}) = \|\mathbf{z} - \mathbf{x}\|$ for all $\mathbf{x} \in S_g$ ;  
+6: &nbsp;&nbsp;&nbsp;&nbsp;Sort $\mathrm{dist}(\mathbf{z}, \mathbf{x})$ in ascending order, take top $k$ as $k\text{-}\mathrm{NN}_g$ ;  
+7: &nbsp;&nbsp;&nbsp;&nbsp;Calculate average distance: $\mathrm{avg\_dist}_g = \frac{1}{k} \sum_{\mathbf{x} \in k\text{-}\mathrm{NN}_g} \mathrm{dist}(\mathbf{z}, \mathbf{x})$ ;  
+8: **end**  
+9: Determine region affiliation: $S_{g^*} = \arg\min_{g} (\mathrm{avg\_dist}_{\mathrm{high}}, \mathrm{avg\_dist}_{\mathrm{mid}}, \mathrm{avg\_dist}_{\mathrm{low}})$ ;  
+10: Generate standard basis unit vectors $\mathbf{e}_1, \dots, \mathbf{e}_n$ ;  
+11: **for** $i = 1$ **to** $n$ **do**  
+12: &nbsp;&nbsp;&nbsp;&nbsp;Calculate gradient component: $g_i = \frac{f(\mathbf{m}_t + \beta \mathbf{e}_i) - f(\mathbf{m}_t - \beta \mathbf{e}_i)}{2\beta}$ ;  
+13: &nbsp;&nbsp;&nbsp;&nbsp;Calculate optimal direction component: $g_i^{\mathrm{opt}} = \begin{cases} -g_i, & \text{if } g_i > 0 \\ g_i, & \text{if } g_i \le 0 \end{cases}$ ;  
+14: **end**  
+15: Normalize optimal direction vector: $\mathbf{g}_{\mathrm{grad}}^{\mathrm{opt}} = \frac{[g_1^{\mathrm{opt}}, \dots, g_n^{\mathrm{opt}}]^T}{\|[g_1^{\mathrm{opt}}, \dots, g_n^{\mathrm{opt}}]^T\|}$ ;  
+16: Calculate direction vector: $\mathbf{v} = \frac{\mathbf{z} - \mathbf{m}_t}{\|\mathbf{z} - \mathbf{m}_t\|}$ ;  
+17: Calculate angle between $\mathbf{v}$ and $\mathbf{g}_{\mathrm{grad}}^{\mathrm{opt}}$: $\theta = \arccos\left(\frac{\mathbf{v} \cdot \mathbf{g}_{\mathrm{grad}}^{\mathrm{opt}}}{\|\mathbf{v}\| \cdot \|\mathbf{g}_{\mathrm{grad}}^{\mathrm{opt}}\|}\right)$ ;  
+18: **if** $\theta < 90^\circ$ **then**  
+19: &nbsp;&nbsp;&nbsp;&nbsp;**if** $\|\mathbf{z} - \mathbf{m}_t\| < \langle d \rangle_{g^*}$ **then**  
+20: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\hat{\mathbf{x}} \leftarrow \mathbf{z}$ ;  
+21: &nbsp;&nbsp;&nbsp;&nbsp;**else**  
+22: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\hat{\mathbf{x}} \leftarrow \mathbf{m}_t + \langle d \rangle_{g^*} \cdot \mathbf{v}$ ;  
+23: &nbsp;&nbsp;&nbsp;&nbsp;**end**  
+24: **else**  
+25: &nbsp;&nbsp;&nbsp;&nbsp;Calculate correction vector $\mathbf{v}'$ according to Eq. (7) ;  
+26: &nbsp;&nbsp;&nbsp;&nbsp;$\hat{\mathbf{x}} \leftarrow \mathbf{m}_t + \langle d \rangle_{g^*} \cdot \mathbf{v}'$ ;  
+27: **end**  
+28: **Return** $\hat{\mathbf{x}}$ ;
+
+The dynamic distance threshold $\langle d \rangle_g$ is calculated to obtain the mean distance of samples from the expectation $\mathbf{m}_t$ of the target distribution in each region in step 2 of Algorithm 4. Next, the sample $\mathbf{z}$ is generated by the source distribution in step 3. The region affiliation of $\mathbf{z}$ is determined in steps 4-9 of Algorithm 4. First, for each region, the distances from $\mathbf{z}$ to all samples within the region are calculated and sorted in ascending order. Then, by using K-Nearest Neighbor algorithm, the average of the first $k$ distances is computed, and the sample $\mathbf{z}$ is assigned to the region with the smallest average distance. The normalized optimal direction vector at the target expectation $\mathbf{m}_t$ is estimated in steps 10-15 of Algorithm 4. The direction vector from $\mathbf{m}_t$ to $\mathbf{z}$, as well as the angle between direction vector and optimal direction vector, is calculated in steps 16-17 of Algorithm 4. If the angle is less than $90^\circ$ and the distance from $\mathbf{m}_t$ to $\mathbf{z}$ is less than $\langle d \rangle_{g^*}$, i.e., $\mathbf{z}$ is in the domain of the target distribution and the direction vector is towards the direction that increases fitness value of target task, the sample $\mathbf{z}$ is directly received as an external sample. If the angle is less than $90^\circ$ but this distance is more than $\langle d \rangle_{g^*}$, $\mathbf{z}$ is pulled toward $\mathbf{m}_t$ as length as $\langle d \rangle_{g^*}$. When the angle is more than $90^\circ$, $\mathbf{z}$ is pulled toward the correction vector $\mathbf{v}'$ as length as $\langle d \rangle_g$. The correction vector $\mathbf{v}'$ is calculated as follows 
+
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/aad30f8b4f545285878c008b4347612bdee648db8deedb5e8102fde4b9b71ec8.jpg)
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/8b82383b6d7e7b501a2d99eaf7cb141f03694a33087bd0cc839017fa0d4b4dc3.jpg)
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/fbe99a5bb45d19c6f6478e8bf1d8afb18254cf268dfbf48bcae8ef4447fcfc94.jpg)
@@ -253,137 +281,168 @@ z is in the domain of the target distribution and the direction vector is toward
 Fig. 4. Dynamic distance threshold domain KGxS with gradient correction
 
 $$
-\boldsymbol {v} ^ {\prime} = \frac {\boldsymbol {v} + \boldsymbol {\varphi} \cdot \boldsymbol {g} _ {g a r d} ^ {o p t}}{\left\| \boldsymbol {v} + \boldsymbol {\varphi} \cdot \boldsymbol {g} _ {g a r d} ^ {o p t} \right\|}\tag{7}
+\mathbf{v}' = \frac{\mathbf{v} + \varphi \cdot \mathbf{g}_{\mathrm{grad}}^{\mathrm{opt}}}{\left\| \mathbf{v} + \varphi \cdot \mathbf{g}_{\mathrm{grad}}^{\mathrm{opt}} \right\|} \tag{7}
 $$
 
-where v is the normalized direction vector from ${ \pmb { m } } _ { t }$ to $z ,$ $\pmb { g } _ { g a r d } ^ { o p t }$ is the normalized optimal direction vector, and $\varphi$ is the gradient correction coefficient to ensure that the angle between correction vector and optimal direction vector is less than 90°. 
+where $\mathbf{v}$ is the normalized direction vector from $\mathbf{m}_t$ to $\mathbf{z}$, $\mathbf{g}_{\mathrm{grad}}^{\mathrm{opt}}$ is the normalized optimal direction vector, and $\varphi$ is the gradient correction coefficient to ensure that the angle between correction vector and optimal direction vector is less than $90^\circ$. 
 
 Compared with domain KGxS approach in [48], the dynamic distance threshold ensures that the external samples accurately fall within the distribution of their regions respectively, and convey information about the source distribution more effectively. This KGxS strategy increases the probability of samples falling within the regions with high fitness values and avoids wasting computational resources in the regions with low fitness values. Meanwhile, the gradient correction strategy can ensure that the pulled sample always points towards the direction of increasing fitness value of the target distribution and increase the possibility of improving the target fitness value through external sampling. 
 
-In order to visually display the details of the proposed dynamic distance threshold domain KGxS with gradient correction, Fig. 4 takes three subfigures as the example to show three types of the external sampling. In subfigure (a), the sample (red dot) generated by the source distribution is in target distribution’s high-potential region, i.e., region with high fitness values, and the angle between direction vector and optimal direction vector is an acute angle. Therefore, the sample is accepted directly as an external sample of the target distribution. As shown in subfigure (b), the red diamond 
+In order to visually display the details of the proposed dynamic distance threshold domain KGxS with gradient correction, Fig. 4 takes three subfigures as the example to show three types of the external sampling. In subfigure (a), the sample (red dot) generated by the source distribution is in target distribution’s high-potential region, i.e., region with high fitness values, and the angle between direction vector and optimal direction vector is an acute angle. Therefore, the sample is accepted directly as an external sample of the target distribution. As shown in subfigure (b), the red diamond indicates a sample generated by the source distribution, which is classified in target distribution’s high-potential region. This sample exceeds the dynamic distance threshold, and the angle between direction vector and optimal direction vector is an acute angle. Therefore, the red diamond is pulled towards the direction vector and then located at the high-potential boundary as the external sample (red dot). In subfigure (c), the red diamond indicates a sample generated by the source distribution, which is classified in target distribution’s low-potential region. The angle between direction vector and optimal direction vector is an obtuse angle, which means that the direction vector will be towards the direction of decreasing fitness value. The red diamond is pulled toward the correction vector and then located at the low-potential boundary as the external sample (red dot). 
 
-#### Algorithm 5: Adaptive Elite Sampling Shape KGxS
-Input: The target task samples: $X_t = \{ x_{t,1}, ..., x_{t,\lambda} \} \sim N(\boldsymbol{m}_t, C_t)$ ; the source task distribution: $X_s = \{ x_{s,1}, ..., x_{s,\lambda} \} \sim N(\boldsymbol{m}_s, C_s)$
-Output: Knowledge-guided external sample: $\hat{x}$
-1 Calculate dynamic elite sample count n;
-2 Sort $X_s$ by the fitness value in ascending order, take top n as elite set $Z_s = \{ z_{s,1}, ..., z_{s,n} \}$ ;
-3 Calculate the weight of sample $w_{si}$ ;
-4 $\langle y \rangle_S \leftarrow \sum_{i=1,i \neq j}^{n} w_{si} \cdot (z_{s,i} - \boldsymbol{m}_s), j = rand\_int(1,n)$ ;
-5 $\hat{x} \leftarrow \boldsymbol{m}_t + C_i^{\frac{1}{2}} C_s^{-\frac{1}{2}} \langle y \rangle_S$ 
-indicates a sample generated by the source distribution, which is classified in target distribution’s high-potential region. This sample exceeds the dynamic distance threshold, and the angle between direction vector and optimal direction vector is an acute angle. Therefore, the red diamond is pulled towards the direction vector and then located at the high-potential boundary as the external sample (red dot). In subfigure (c), the red diamond indicates a sample generated by the source distribution, which is classified in target distribution’s lowpotential region. The angle between direction vector and optimal direction vector is an obtuse angle, which means that the direction vector will be towards the direction of decreasing fitness value. The red diamond is pulled toward the correction vector and then located at the low-potential boundary as the external sample (red dot). 
-2) Adaptive Elite Sampling Shape KGxS: Adaptive elite sampling shape KGxS assigns weights based on fitness values of samples and enhances the contribution of elite samples with high fitness values. Meanwhile, adaptive elite sampling shape KGxS dynamically adjusts the number of elite samples to improve accuracy of shape knowledge. The detailed procedure of the proposed adaptive elite sampling shape KGxS is shown in Algorithm 5. The number of elite samples n increases with the number of iterations increases, and is calculated according to the following equation 
+2) Adaptive Elite Sampling Shape KGxS: Adaptive elite sampling shape KGxS assigns weights based on fitness values of samples and enhances the contribution of elite samples with high fitness values. Meanwhile, adaptive elite sampling shape KGxS dynamically adjusts the number of elite samples to improve accuracy of shape knowledge. The detailed procedure of the proposed adaptive elite sampling shape KGxS is shown in Algorithm 5. The number of elite samples $n$ increases with the number of iterations increases, and is calculated according to the following equation 
+
 $$
-n = \left\{ \begin{array}{l l} \left(\frac {\text { gen }}{M}\right) ^ {a} \left(n _ {\max} - n _ {\min}\right) + n _ {\min} & \text { if   } \text { gen } \leq M \\ n _ {\max} & \text { otherwise } \end{array} \right.\tag{8}
+n = \begin{cases} \left( \frac{\mathrm{gen}}{M} \right)^a (n_{\max} - n_{\min}) + n_{\min}, & \text{if } \mathrm{gen} \le M \\ n_{\max}, & \text{otherwise} \end{cases} \tag{8}
 $$
-where gen is the current number of generations, $M \ =$ 0.6Maxgen, Maxgen is the maximum number of generations. $n _ { m a x }$ and $n _ { m i n }$ represent the minimum elite sample number and the maximum elite sample number, respectively. a is a parameter that controls the increasing rate of the elite sample number. In step 2 of Algorithm 5, the samples of the source distribution are sort by fitness values in descending order, and the top n samples are selected as the elite set. Then, the weight of each elite sample is computed as follows 
+
+where $\mathrm{gen}$ is the current number of generations, $M = 0.6 \mathrm{Maxgen}$, $\mathrm{Maxgen}$ is the maximum number of generations. $n_{\max}$ and $n_{\min}$ represent the maximum elite sample number and the minimum elite sample number, respectively. $a$ is a parameter that controls the increasing rate of the elite sample number. In step 2 of Algorithm 5, the samples of the source distribution are sort by fitness values in descending order, and the top $n$ samples are selected as the elite set. Then, the weight of each elite sample is computed as follows 
+
 $$
-w _ {s i} = \frac {\exp \left(\gamma \cdot \frac {n - i}{n}\right)}{\sum_ {k = 1 , k \neq j} ^ {n} \exp \left(\gamma \cdot \frac {n - k}{n}\right)}, i = 1, \dots , n, i \neq j, j = r a n d \_ i n t (1, n)\tag{9}
+w_{si} = \frac{\exp\left(\gamma \cdot \frac{n - i}{n}\right)}{\sum_{k=1, k \neq j}^n \exp\left(\gamma \cdot \frac{n - k}{n}\right)}, \quad i = 1, \dots, n, \, i \neq j, \, j = \mathrm{randint}(1, n) \tag{9}
 $$
-where $w _ { s i }$ represents the weight of the ith elite sample, and $\gamma$ is the weight coefficient. The random number $j$ is randomly excluded from the computation to ensure that the $w _ { s i }$ generated by each execution is different. In step 4 of Algorithm $^ { 5 , }$ the center position $\langle \boldsymbol { y } \rangle _ { s }$ of elite samples $z _ { s , 1 : n }$ relative to the expectation $\pmb { m } _ { s }$ of the source distribution is computed. In the end, the $\langle \boldsymbol { y } \rangle _ { s }$ is transformed into an external sample of the target distribution by applying the domain alignment approach. 
+
+where $w_{si}$ represents the weight of the $i$-th elite sample, and $\gamma$ is the weight coefficient. The random number $j$ is randomly excluded from the computation to ensure that the $w_{si}$ generated by each execution is different. In step 4 of Algorithm 5, the center position $\langle \mathbf{y} \rangle_S$ of elite samples $\mathbf{z}_{s,1:n}$ relative to the expectation $\mathbf{m}_s$ of the source distribution is computed. In the end, $\langle \mathbf{y} \rangle_S$ is transformed into an external sample of the target distribution by applying the domain alignment approach. 
+
+**Algorithm 5: Adaptive Elite Sampling Shape KGxS**
+
+**Input:** $X_t = \{\mathbf{x}_{t,1}, \dots, \mathbf{x}_{t,\lambda}\} \sim \mathcal{N}(\mathbf{m}_t, \mathbf{C}_t)$ (target task samples), $X_s = \{\mathbf{x}_{s,1}, \dots, \mathbf{x}_{s,\lambda}\} \sim \mathcal{N}(\mathbf{m}_s, \mathbf{C}_s)$ (source task samples)  
+**Output:** $\hat{\mathbf{x}}$ (knowledge-guided external sample)
+
+1: Calculate dynamic elite sample count $n$ according to Eq. (8) ;  
+2: Sort $X_s$ by fitness value in ascending order, take top $n$ as elite set $Z_s = \{\mathbf{z}_{s,1}, \dots, \mathbf{z}_{s,n}\}$ ;  
+3: Calculate weights $w_{si}$ ($i = 1, \dots, n, i \neq j$) according to Eq. (9) with $j = \mathrm{randint}(1, n)$ ;  
+4: Calculate weighted center position relative to source mean: $\langle \mathbf{y} \rangle_S \leftarrow \sum_{i=1, i \neq j}^{n} w_{si} \cdot (\mathbf{z}_{s,i} - \mathbf{m}_s)$ ;  
+5: Transform center position to target space: $\hat{\mathbf{x}} \leftarrow \mathbf{m}_t + \mathbf{C}_t^{\frac{1}{2}} \mathbf{C}_s^{-\frac{1}{2}} \langle \mathbf{y} \rangle_S$ ;  
+6: **Return** $\hat{\mathbf{x}}$ ;
+
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/b0f6d3a32c8ba9cd11c89e03e24a22a16316bbd400ec83043205ebe6fc528eca.jpg)
 
 Fig. 5. Adaptive elite sampling shape KGxS
 
-Compared with shape KGxS approach in [48], the adaptive elite sampling shape KGxS calculates $\langle \boldsymbol { y } \rangle _ { s }$ by assigning weights to elite samples in descending order of fitness, and highlights the contributions of elite samples with high fitness values. The shape preference of these samples can dominate $\langle \boldsymbol { y } \rangle _ { s }$ to improve the accuracy of transferred shape knowledge. The adaptive adjustment of elite sample number can utilize more shape details of elite samples and improve shape knowledge accuracy. 
+Compared with shape KGxS approach in [48], the adaptive elite sampling shape KGxS calculates $\langle \mathbf{y} \rangle_S$ by assigning weights to elite samples in descending order of fitness, and highlights the contributions of elite samples with high fitness values. The shape preference of these samples can dominate $\langle \mathbf{y} \rangle_S$ to improve the accuracy of transferred shape knowledge. The adaptive adjustment of elite sample number can utilize more shape details of elite samples and improve shape knowledge accuracy. 
 
 Fig. 5 shows two types of adaptive elite sampling shape KGxS. In subfigure (a), elite samples of the source distribution are denoted as red diamonds within black circle, showing a trend of searching to the right side of the source distribution. The external sample in the target distribution generated through adaptive elite sampling shape KGxS also tends to search towards the right. In subfigure (b), elite samples are searching towards the center of the source distribution, which guide the external sample to search towards the target distribution center. 
 
-It should be noted that the number λ of generated samples in MTES-DAKG is less than 100 set in [48]. So, the number τ of external samples should be set to a smaller value, which is discussed in Section IV. Numerical Experiments and Discussions. In addition, using external sampling every generation may affect the task distribution and optimization efficiency owing to the small λ, the frequency of external sampling $f r e$ is introduced in MTES-DAKG, and its value is also discussed in Section IV. Numerical Experiments and Discussions. 
+It should be noted that the number $\lambda$ of generated samples in MTES-DAKG is less than 100 set in [48]. So, the number $\tau$ of external samples should be set to a smaller value, which is discussed in Section IV. Numerical Experiments and Discussions. In addition, using external sampling every generation may affect the task distribution and optimization efficiency owing to the small $\lambda$, the frequency of external sampling $fre$ is introduced in MTES-DAKG, and its value is also discussed in Section IV. Numerical Experiments and Discussions. 
 
 ### E. Contribution-Based Resource Allocation Strategy of MTOPs and Subtasks
 
-1) Stagnant Subtask Detection: In the proposed CCMTO framework, the original LSOP is decomposed into a series of MTOPs, and each MTOP contains multiple subtasks. When using EMTO algorithms for solving a MTOP, all subtasks in this MTOP are optimized simultaneously. However, not all subtasks are equally difficult to solve, and for the subtasks that 
-
-are easy to be optimized, a small number of computational resources are sufficient to obtain their optimal solutions. At this point, continuing to allocate computing resources to these subtasks does not make contributions to the improvement of the best overall objective function value, as the corresponding subpopulations are in a stagnant stage. Therefore, a stagnant subtask detection method is proposed, in which computational resources are no longer allocated to these stagnant subpopulations. This mechanism can save some computational cost on stagnant subtasks to improve the efficiency of the proposed CCMTO framework. 
+1) Stagnant Subtask Detection: In the proposed CCMTO framework, the original LSOP is decomposed into a series of MTOPs, and each MTOP contains multiple subtasks. When using EMTO algorithms for solving a MTOP, all subtasks in this MTOP are optimized simultaneously. However, not all subtasks are equally difficult to solve, and for the subtasks that are easy to be optimized, a small number of computational resources are sufficient to obtain their optimal solutions. At this point, continuing to allocate computing resources to these subtasks does not make contributions to the improvement of the best overall objective function value, as the corresponding subpopulations are in a stagnant stage. Therefore, a stagnant subtask detection method is proposed, in which computational resources are no longer allocated to these stagnant subpopulations. This mechanism can save some computational cost on stagnant subtasks to improve the efficiency of the proposed CCMTO framework. 
 
 In order to check whether the subtask is stagnant, the proposed stagnant subtask detection method employs both fitness value improvement and population diversity as detection indicators by calculating the relative variation of objective function values, and the relative variation of the mean and standard deviation of individuals’ design variable values in dimension. 
 
-Suppose T<sub>i</sub> denotes the ith constructed MTOP through the construction strategy of multitask optimization problems, and $t _ { i , j }$ denotes thejth subtask in the MTOP. For the subpopulation corresponding to $t _ { i , j }$ at the Gth generation, the relative variation of the best objective function values, and the relative variation of the mean and standard deviation of individuals design variable values in dimension are calculated as follows 
+Suppose $T_i$ denotes the $i$-th constructed MTOP through the construction strategy of multitask optimization problems, and $t_{i,j}$ denotes the $j$-th subtask in the MTOP. For the subpopulation corresponding to $t_{i,j}$ at the $G$-th generation, the relative variation of the best objective function values, and the relative variation of the mean and standard deviation of individuals design variable values in dimension are calculated as follows 
 
 $$
-\Delta f _ {G} = \left\| \frac {f (\boldsymbol {x} _ {\in t _ {i , j} , G - 1} ^ {b e s t} ; \boldsymbol {x} _ {\notin t _ {i , j}}) - f (\boldsymbol {x} _ {\in t _ {i , j} , G} ^ {b e s t} ; \boldsymbol {x} _ {\notin t _ {i , j}})}{f (\boldsymbol {x} _ {\in t _ {i , j} , G - 1} ^ {b e s t} ; \boldsymbol {x} _ {\notin t _ {i , j}})} \right\|\tag{10}
-$$
-
-$$
-\Delta m _ {d, G} = \left\| \frac {m _ {d , G - 1} - m _ {d , G}}{m _ {d , G - 1}} \right\|, \quad m _ {d, G} = \frac {1}{N} \sum_ {n = 1} ^ {N} x _ {\in t _ {i, j}, d, G} ^ {n}\tag{11}
+\Delta f_G = \left| \frac{f(\mathbf{x}_{\in t_{i,j}, G-1}^{\mathrm{best}}; \mathbf{x}_{\notin t_{i,j}}) - f(\mathbf{x}_{\in t_{i,j}, G}^{\mathrm{best}}; \mathbf{x}_{\notin t_{i,j}})}{f(\mathbf{x}_{\in t_{i,j}, G-1}^{\mathrm{best}}; \mathbf{x}_{\notin t_{i,j}})} \right| \tag{10}
 $$
 
 $$
-\Delta \mathrm{std} _ {d, G} = \left\| \frac {\mathrm{std} _ {d , G - 1} - \mathrm{std} _ {d , G}}{\mathrm{std} _ {d , G - 1}} \right\|, \quad \mathrm{std} _ {d, G} = \sqrt {\frac {1}{N} \sum_ {n = 1} ^ {N} (x _ {\in t _ {i , j} , d , G} ^ {n} - m _ {d , G}) ^ {2}}\tag{12}
+\Delta m_{d,G} = \left| \frac{m_{d,G-1} - m_{d,G}}{m_{d,G-1}} \right|, \quad m_{d,G} = \frac{1}{N} \sum_{n=1}^N x_{\in t_{i,j}, d, G}^n \tag{11}
 $$
 
-where $\pmb { x } _ { \in t _ { i , j } , G } ^ { b e s t }$ is the best solution at the Gth generation, and the collaborator $\boldsymbol { x } _ { \ u { \notin t _ { i , j } } }$ is set to be fixed. N is the subpopulation size, $\pmb { x } _ { \in t _ { i , j } , G } ^ { n } = ( \pmb { x } _ { \in t _ { i , j } , 1 , G } ^ { n } , . . . , \pmb { x } _ { \in t _ { i , j } , D , G } ^ { n } )$ is nth individual, D is the dimension of decision variables, and $x _ { \in t _ { i , j } , d , G } ^ { n }$ is the dth variable value of the $\pmb { x } _ { \in t _ { i , j } , G } ^ { n }$ . If the relative variation of the best objective function values remains unchanged for several successive generations, this subpopulation is considered to be stagnant in fitness value. When the relative variation of both the mean and standard deviation of individuals’ dth design variable value remains unchanged over several successive generations, this subpopulation can be considered to be stagnant in this dimension [18]. Only when a subpopulation is stagnant in fitness value and in all dimensions, the subtask can be considered to be in a stagnant state. The method to check whether a subpopulation is stagnant in fitness value is as shown in follows 
-
 $$
-\nu_ {G} = \left\{ \begin{array}{l l} \nu_ {G - 1} + 1 & \text { if } \Delta f _ {G} <   \varepsilon \\ 0 & \text { otherwise } \end{array} \right.\tag{13}
+\Delta \mathrm{std}_{d,G} = \left| \frac{\mathrm{std}_{d,G-1} - \mathrm{std}_{d,G}}{\mathrm{std}_{d,G-1}} \right|, \quad \mathrm{std}_{d,G} = \sqrt{\frac{1}{N} \sum_{n=1}^N (x_{\in t_{i,j}, d, G}^n - m_{d,G})^2} \tag{12}
 $$
 
-where $\upsilon _ { G }$ denotes the number of successive generations where the value best objective function remains unchanged, and note that $\upsilon _ { 0 } = 0$ . ε is the threshold of objective function value variation, and the value is 1e-6 in this study. 
+where $\mathbf{x}_{\in t_{i,j}, G}^{\mathrm{best}}$ is the best solution at the $G$-th generation, and the collaborator $\mathbf{x}_{\notin t_{i,j}}$ is set to be fixed. $N$ is the subpopulation size, $\mathbf{x}_{\in t_{i,j}, G}^n = (\mathbf{x}_{\in t_{i,j}, 1, G}^n, \dots, \mathbf{x}_{\in t_{i,j}, D, G}^n)$ is $n$-th individual, $D$ is the dimension of decision variables, and $x_{\in t_{i,j}, d, G}^n$ is the $d$-th variable value of $\mathbf{x}_{\in t_{i,j}, G}^n$. If the relative variation of the best objective function values remains unchanged for several successive generations, this subpopulation is considered to be stagnant in fitness value. When the relative variation of both the mean and standard deviation of individuals’ $d$-th design variable value remains unchanged over several successive generations, this subpopulation can be considered to be stagnant in this dimension [18]. Only when a subpopulation is stagnant in fitness value and in all dimensions, the subtask can be considered to be in a stagnant state. The method to check whether a subpopulation is stagnant in fitness value is as shown in follows 
 
-#### Algorithm 6: Contribution-Based Resource Allocation Strategy of MTOPs and Subtasks
-Input: The constructed MTOPs: $\{T_{1},...,T_{k}\}$ ; The subtasks in each MTOP: $T_{i}=\{t_{i,1},...,t_{i,n_{i}}\}$
-Output: The final optimal global solution: $x^{best}$
-1 Set contributions of MTOPs $\Delta F_{i}=0$ , stagnant subtask set $S_{i}=\varnothing$ , $i=1,\ldots,k$ , best solution so far: $x^{best}$ ;
-2 while the stop criterion is not met do
-3 For each MTOP, reset $S_{i}=\varnothing$ , $v^{i,j}=0$ , $\eta^{i,j}=0$ , $j=1,\ldots,n_{i}$ ;
-4 for i=1 to k do
-5 $x_{last}^{best} \leftarrow x^{best}$ ;
-6 for j=1 to $n_{i}$ do
-7 $x_{e_{i,t_{j}}}^{best} \leftarrow$ Optimize $t_{i,j}$ by EMTO optimizer;
-8 if $\rho_{G}^{i,j}=1$ then
-9 $|S_{i}\leftarrow j;$ 10 end
-11 end
-12 $x_{e_{i,t_{i}}}^{best} \leftarrow \{x_{e_{i,t_{i}}}^{best},...,x_{e_{i,n_{i}}}^{best}\}$ , $x^{best} \leftarrow \{x_{e_{i,t_{i}}}^{best};x_{e_{i,t_{i}}}^{best}\}$ ;
-13 $\Delta F_{i}=\left|f(x_{last}^{best})-f(x^{best})\right|$ ;
-14 if all $\rho_{G}^{i,j}=1$ , $j=1,\ldots,n_{i}$ then
-15 $|\Delta F_{i}=0;$ 16 end
-17 end
-18 while $\min(\Delta F_{i}|i=1,\ldots,k)\neq\max(\Delta F_{i}|i=1,\ldots,k)$ do
-19 $i\leftarrow$ the index of the maximum $\Delta F_{i}$ ;
-20 $x_{last}^{best} \leftarrow x^{best}$ ;
-21 for $j=1,\ldots,n_{i}, j\notin S$ do
-22 $x_{e_{i,t_{j}}}^{best} \leftarrow$ Optimize $t_{i,j}$ by EMTO optimizer;
-23 if $\rho_{G}^{i,j}=1$ then
-24 $|S_{i}\leftarrow j;$ 25 end
-26 end
-27 $x_{e_{i,t_{i}}}^{best} \leftarrow \{x_{e_{i,t_{i}}}^{best},...,x_{e_{i,n_{i}}}^{best}\}$ , $x^{best} \leftarrow \{x_{e_{i,t_{i}}}^{best};x_{e_{i,t_{i}}}^{best}\}$ ;
-28 $\Delta F_{i}=\left|f(x_{last}^{best})-f(x^{best})\right|$ ;
-29 if all $\rho_{G}^{i,j}=1$ , $j=1,\ldots,n_{i}$ then
-30 $|\Delta F_{i}=0;$ 31 end
-32 end
-33 end 
-If a subpopulation is stagnant in the dth dimension, the indicator $\varphi _ { d , G }$ is defined as follows 
 $$
-\varphi_ {d, G} = \left\{ \begin{array}{l l} 1 & \text { if } \Delta m _ {d, G} <   \varepsilon \text { and } \Delta \mathrm{std} _ {d, G} <   \varepsilon \\ 0 & \text { otherwise } \end{array} \right.\tag{14}
+v_G = \begin{cases} v_{G-1} + 1, & \text{if } \Delta f_G < \varepsilon \\ 0, & \text{otherwise} \end{cases} \tag{13}
 $$
-where $\varphi _ { d , G }$ denotes whether the mean and standard deviation of individuals’ design variable values in dimension d remain unchanged from the last generation, and note that $\varphi _ { d , 0 } = 0$ Then $\sigma _ { G }$ denotes the number of dimensions where $\varphi _ { d , G } = 1$ 
+
+where $v_G$ denotes the number of successive generations where the value best objective function remains unchanged, and note that $v_0 = 0$. $\varepsilon$ is the threshold of objective function value variation, and the value is $1\text{e-}6$ in this study. 
+
+If a subpopulation is stagnant in the $d$-th dimension, the indicator $\varphi_{d,G}$ is defined as follows 
+
 $$
-\sigma_ {G} = \sum \varphi_ {d, G}\tag{15}
+\varphi_{d,G} = \begin{cases} 1, & \text{if } \Delta m_{d,G} < \varepsilon \text{ and } \Delta \mathrm{std}_{d,G} < \varepsilon \\ 0, & \text{otherwise} \end{cases} \tag{14}
 $$
-If the subpopulation is stagnant in all dimensions, $\sigma _ { \it G } = D \it { \cdot } \eta _ { \it G }$ denotes the number of successive generations where $\sigma _ { G } = D$ , and note that $\eta _ { \mathrm { 0 } } = 0$ 
+
+where $\varphi_{d,G}$ denotes whether the mean and standard deviation of individuals’ design variable values in dimension $d$ remain unchanged from the last generation, and note that $\varphi_{d,0} = 0$. Then $\sigma_G$ denotes the number of dimensions where $\varphi_{d,G} = 1$: 
+
 $$
-\eta_ {G} = \left\{ \begin{array}{l l} \eta_ {G - 1} + 1 & \text { if } \sigma_ {G} = D \\ 0 & \text { otherwise } \end{array} \right.\tag{16}
+\sigma_G = \sum_{d=1}^D \varphi_{d,G} \tag{15}
 $$
-When the subpopulation is stagnant in fitness value and in all dimensions for successive generations, the subtask is in a stagnant state, and the detection flag $\rho _ { G }$ is calculated as follows 
+
+If the subpopulation is stagnant in all dimensions, $\sigma_G = D$, $\eta_G$ denotes the number of successive generations where $\sigma_G = D$, and note that $\eta_0 = 0$: 
+
 $$
-\rho_ {G} = \left\{ \begin{array}{l l} 1 & \text { if } \nu_ {G} \geq U \text { and } \eta_ {G} \geq U \\ 0 & \text { otherwise } \end{array} \right.\tag{17}
+\eta_G = \begin{cases} \eta_{G-1} + 1, & \text{if } \sigma_G = D \\ 0, & \text{otherwise} \end{cases} \tag{16}
 $$
-where U is a parameter and is defined as 
+
+When the subpopulation is stagnant in fitness value and in all dimensions for successive generations, the subtask is in a stagnant state, and the detection flag $\rho_G$ is calculated as follows 
+
 $$
-U = \min (D, \text { Maxgen })\tag{18}
+\rho_G = \begin{cases} 1, & \text{if } v_G \ge U \text{ and } \eta_G \ge U \\ 0, & \text{otherwise} \end{cases} \tag{17}
 $$
-Once $\rho _ { \scriptscriptstyle G } = 1$ for a subpopulation, computational resources are immediately no longer allocated to this stagnant subtask. This subtask is excluded from the optimization of the MTOP it belongs to, which means that it will not undergo evolution in the CCMTO framework. 
-2) Resource Allocation Strategy: For a MTOP $T _ { i , }$ after finishing optimization in a cycle, its contribution is calculated as follows 
+
+where $U$ is a parameter and is defined as 
+
 $$
-\Delta F _ {i} = \left| f (\boldsymbol {x} _ {l a s t} ^ {b e s t}) - f (\boldsymbol {x} ^ {b e s t}) \right|\tag{19}
+U = \min(D, \mathrm{Maxgen}) \tag{18}
 $$
-where $f ( \boldsymbol { x } _ { l a s t } ^ { b e s t } )$ and $f ( \boldsymbol { x } ^ { b e s t } )$ are the best overall objective values before and after $T _ { i }$ undergoes optimization, respectively. The contribution-based resource allocation strategy of MTOPs and subtasks is shown in Algorithm 6. 
-In the first, the contribution of every MTOP is set to zero, and the stagnant subtask set of every MTOP is set to the empty set. During the first co-evolutionary cycle, all MTOPs undergo optimization one by one in steps 4-17 of Algorithm 6. If a subtask $t _ { i , j }$ is in a stagnant state, i.e. $\rho _ { G } ^ { i , j } = 1$ when optimizing the MTOP $T _ { i , }$ the index j of this subtask is put into the set $S _ { i , }$ and no more computational resources will be allocated to this subtask in the subsequent co-evolutionary cycles. The value of $\Delta F _ { i }$ for each MTOP is computed according to (19) in step 13 of Algorithm 6. If all subtasks in a MTOP are all in a stagnant state, i.e. all $\rho _ { G } ^ { i , j } = 1$ , this MTOP can be considered to be in a stagnant state, and the value of $\Delta F _ { i }$ is set to zero. In the subsequent co-evolutionary cycles, the MTOP with the largest value of $\Delta F _ { i }$ is selected to undergo optimization in step 19 of Algorithm 6. In steps 21-26 of Algorithm 6, the subtasks that have been considered to be stagnant will be excluded from the MTOP optimization cycle, and the index of stagnant subtasks is also put into the set S<sub>i</sub> during optimization. Then, the contribution value of this MTOP is updated according to (19) at the end of the optimization. When the values of $\Delta F _ { i }$ are same for all the MTOPs, the algorithm will go to steps 3-17 to reset the contribution and the stagnant subtask set of each MTOP, then initiates a new co-evolutionary cycle. The above process is repeated until the stop criterion is met. 
+
+Once $\rho_G = 1$ for a subpopulation, computational resources are immediately no longer allocated to this stagnant subtask. This subtask is excluded from the optimization of the MTOP it belongs to, which means that it will not undergo evolution in the CCMTO framework. 
+
+2) Resource Allocation Strategy: For a MTOP $T_i$, after finishing optimization in a cycle, its contribution is calculated as follows 
+
+$$
+\Delta F_i = |f(\mathbf{x}_{\mathrm{last}}^{\mathrm{best}}) - f(\mathbf{x}^{\mathrm{best}})| \tag{19}
+$$
+
+where $f(\mathbf{x}_{\mathrm{last}}^{\mathrm{best}})$ and $f(\mathbf{x}^{\mathrm{best}})$ are the best overall objective values before and after $T_i$ undergoes optimization, respectively. The contribution-based resource allocation strategy of MTOPs and subtasks is shown in Algorithm 6. 
+
+**Algorithm 6: Contribution-Based Resource Allocation Strategy of MTOPs and Subtasks**
+
+**Input:** $\{T_{1}, \dots, T_{k}\}$ (constructed MTOPs), subtasks in each MTOP $T_i = \{t_{i,1}, \dots, t_{i,n_i}\}$  
+**Output:** $\mathbf{x}^{\mathrm{best}}$ (final optimal global solution)
+
+1: Set contributions $\Delta F_i = 0$, stagnant subtask sets $S_i = \varnothing$ ($i = 1, \dots, k$), initialize global best solution $\mathbf{x}^{\mathrm{best}}$ ;  
+2: **while** stop criterion is not met **do**  
+3: &nbsp;&nbsp;&nbsp;&nbsp;**for** each MTOP $T_i$ ($i = 1, \dots, k$) **do** reset $S_i = \varnothing, v^{i,j} = 0, \eta^{i,j} = 0$ ($j = 1, \dots, n_i$) ;  
+4: &nbsp;&nbsp;&nbsp;&nbsp;**for** $i = 1$ **to** $k$ **do**  
+5: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\mathbf{x}_{\mathrm{last}}^{\mathrm{best}} \leftarrow \mathbf{x}^{\mathrm{best}}$ ;  
+6: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**for** $j = 1$ **to** $n_i$ **do**  
+7: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\mathbf{x}_{e_{i,j}}^{\mathrm{best}} \leftarrow$ Optimize subtask $t_{i,j}$ by EMTO optimizer ;  
+8: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**if** $\rho_G^{i,j} == 1$ **then**  
+9: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$S_i \leftarrow S_i \cup \{j\}$ ;  
+10: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**end**  
+11: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**end**  
+12: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Update MTOP solution $\mathbf{x}_{e_i}^{\mathrm{best}} \leftarrow \{\mathbf{x}_{e_{i,1}}^{\mathrm{best}}, \dots, \mathbf{x}_{e_{i,n_i}}^{\mathrm{best}}\}$ and global solution $\mathbf{x}^{\mathrm{best}} \leftarrow \{\mathbf{x}_{e_i}^{\mathrm{best}}; \mathbf{x}_{\notin e_i}^{\mathrm{best}}\}$ ;  
+13: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\Delta F_i \leftarrow |f(\mathbf{x}_{\mathrm{last}}^{\mathrm{best}}) - f(\mathbf{x}^{\mathrm{best}})|$ ;  
+14: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**if** all $\rho_G^{i,j} == 1$ ($j = 1, \dots, n_i$) **then**  
+15: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\Delta F_i \leftarrow 0$ ;  
+16: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**end**  
+17: &nbsp;&nbsp;&nbsp;&nbsp;**end**  
+18: &nbsp;&nbsp;&nbsp;&nbsp;**while** $\min_{i=1,\dots,k}(\Delta F_i) \neq \max_{i=1,\dots,k}(\Delta F_i)$ **do**  
+19: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$i \leftarrow \arg\max_{l \in \{1,\dots,k\}} (\Delta F_l)$ ;  
+20: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\mathbf{x}_{\mathrm{last}}^{\mathrm{best}} \leftarrow \mathbf{x}^{\mathrm{best}}$ ;  
+21: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**for** $j = 1$ **to** $n_i$ **do**  
+22: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**if** $j \notin S_i$ **then**  
+23: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\mathbf{x}_{e_{i,j}}^{\mathrm{best}} \leftarrow$ Optimize subtask $t_{i,j}$ by EMTO optimizer ;  
+24: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**if** $\rho_G^{i,j} == 1$ **then**  
+25: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$S_i \leftarrow S_i \cup \{j\}$ ;  
+26: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**end**  
+27: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**end**  
+28: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**end**  
+29: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Update MTOP solution $\mathbf{x}_{e_i}^{\mathrm{best}} \leftarrow \{\mathbf{x}_{e_{i,1}}^{\mathrm{best}}, \dots, \mathbf{x}_{e_{i,n_i}}^{\mathrm{best}}\}$ and global solution $\mathbf{x}^{\mathrm{best}} \leftarrow \{\mathbf{x}_{e_i}^{\mathrm{best}}; \mathbf{x}_{\notin e_i}^{\mathrm{best}}\}$ ;  
+30: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\Delta F_i \leftarrow |f(\mathbf{x}_{\mathrm{last}}^{\mathrm{best}}) - f(\mathbf{x}^{\mathrm{best}})|$ ;  
+31: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**if** all $\rho_G^{i,j} == 1$ ($j = 1, \dots, n_i$) **then**  
+32: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\Delta F_i \leftarrow 0$ ;  
+33: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**end**  
+34: &nbsp;&nbsp;&nbsp;&nbsp;**end**  
+35: **end**  
+36: **Return** $\mathbf{x}^{\mathrm{best}}$ ;
+
+In the first, the contribution of every MTOP is set to zero, and the stagnant subtask set of every MTOP is set to the empty set. During the first co-evolutionary cycle, all MTOPs undergo optimization one by one in steps 4-17 of Algorithm 6. If a subtask $t_{i,j}$ is in a stagnant state, i.e. $\rho_G^{i,j} = 1$ when optimizing the MTOP $T_i$, the index $j$ of this subtask is put into the set $S_i$, and no more computational resources will be allocated to this subtask in the subsequent co-evolutionary cycles. The value of $\Delta F_i$ for each MTOP is computed according to Eq. (19) in step 13 of Algorithm 6. If all subtasks in a MTOP are all in a stagnant state, i.e. all $\rho_G^{i,j} = 1$, this MTOP can be considered to be in a stagnant state, and the value of $\Delta F_i$ is set to zero. In the subsequent co-evolutionary cycles, the MTOP with the largest value of $\Delta F_i$ is selected to undergo optimization in step 19 of Algorithm 6. In steps 21-28 of Algorithm 6, the subtasks that have been considered to be stagnant will be excluded from the MTOP optimization cycle, and the index of stagnant subtasks is also put into the set $S_i$ during optimization. Then, the contribution value of this MTOP is updated according to Eq. (19) at the end of the optimization. When the values of $\Delta F_i$ are same for all the MTOPs, the algorithm will go to steps 3-17 to reset the contribution and the stagnant subtask set of each MTOP, then initiates a new co-evolutionary cycle. The above process is repeated until the stop criterion is met. 
+
 The proposed stagnant subtask detection can accurately identify a stagnant subtask according to the mean and standard deviation of individuals’ gene values, as well as the best objective function value in the subpopulation. Meanwhile, this resource allocation strategy can save computational cost on stagnant subtasks, and make a more efficient computational resource allocation among subtasks. 
 
 ### F. Computational Complexity
 
-In the proposed MTES-DAKG, assuming that K is the number of subtasks in a MTOP, λ is the sample number for each task, and n is the maximum dimension of decision variables. The computational complexity of MTES-DAKG in one evolutionary loop is analyzed as follows. The complexity of sample new solutions is $O \left( n ^ { 2 } \cdot K \right)$ . In the dynamic distance threshold domain KGxS with gradient correction as shown in Algorithm 4, calculating dynamic distance threshold takes O $( \lambda \cdot n \cdot K )$ in step 2 of Algorithm 4. Then, calculating the average distance takes $O \left( n \cdot K \right)$ in step 4-8 of Algorithm 4. Subsequently, $O \ ( n ^ { 2 } \cdot K )$ is used to calculate the optimal direction in step 11-16 of Algorithm 4. At last, calculating angle and conducting gradient correction takes $O \ ( n \cdot K )$ in step 17-27 of Algorithm 4. Therefore, the total computational complexity is $O \ ( n ^ { 2 } \cdot K )$ , which is the same as the original domain KGxS. In the adaptive elite sampling shape KGxS as shown in Algorithm 5, it needs $O \left( \lambda \cdot \log ( \lambda ) \cdot K \right)$ to sort the elite samples in step 2 of Algorithm 5. Then, calculating the center position takes $O \ ( n \cdot K )$ in step 4 of Algorithm 5. At last, $O \left( n ^ { 2 } \cdot K \right)$ is used to transform the external sample in step 5 of Algorithm 5. Overall, the total computational complexity is max $( O \ ( \lambda \ \cdot \ \log ( \lambda ) \ \cdot \ K ) , \ O \ ( n ^ { 2 } \ \cdot \ K ) )$ . In summary, the computational complexity of MTES-DAKG is max (O $( \lambda \cdot \log ( \lambda ) \cdot K ) , O \left( n ^ { 2 } \cdot K \right) )$ , which is equal to MTES-KG. The proposed MTES-DAKG can improve the optimization performance through finer external sample transfer without increasing the computational complexity. 
+In the proposed MTES-DAKG, assuming that $K$ is the number of subtasks in a MTOP, $\lambda$ is the sample number for each task, and $n$ is the maximum dimension of decision variables. The computational complexity of MTES-DAKG in one evolutionary loop is analyzed as follows. The complexity of sample new solutions is $O(n^2 \cdot K)$. In the dynamic distance threshold domain KGxS with gradient correction as shown in Algorithm 4, calculating dynamic distance threshold takes $O(\lambda \cdot n \cdot K)$ in step 2 of Algorithm 4. Then, calculating the average distance takes $O(n \cdot K)$ in step 4-8 of Algorithm 4. Subsequently, $O(n^2 \cdot K)$ is used to calculate the optimal direction in step 11-16 of Algorithm 4. At last, calculating angle and conducting gradient correction takes $O(n \cdot K)$ in step 17-27 of Algorithm 4. Therefore, the total computational complexity is $O(n^2 \cdot K)$, which is the same as the original domain KGxS. In the adaptive elite sampling shape KGxS as shown in Algorithm 5, it needs $O(\lambda \cdot \log(\lambda) \cdot K)$ to sort the elite samples in step 2 of Algorithm 5. Then, calculating the center position takes $O(n \cdot K)$ in step 4 of Algorithm 5. At last, $O(n^2 \cdot K)$ is used to transform the external sample in step 5 of Algorithm 5. Overall, the total computational complexity is $\max(O(\lambda \cdot \log(\lambda) \cdot K), O(n^2 \cdot K))$. In summary, the computational complexity of MTES-DAKG is $\max(O(\lambda \cdot \log(\lambda) \cdot K), O(n^2 \cdot K))$, which is equal to MTES-KG. The proposed MTES-DAKG can improve the optimization performance through finer external sample transfer without increasing the computational complexity. 
 
 Actually, the proposed CCMTO framework is just transformed the paradigm for addressing LSOPs from sequentially solving each subproblem to employing EMTO algorithms for solving a series of MTOPs. Therefore, compared to traditional CC framework, the CCMTO framework does not increase additional computational complexity. 
 
@@ -393,17 +452,20 @@ In this section, the proposed CCMTO using MTES-DAKG is tested and compared with 
 
 ### A. Benchmark Test Suite and Parameter Settings
 
-The proposed CCMTO with MTES-DAKG (CCMTO-MTES-DAKG) is tested on CEC2010 and CEC2013 largescale benchmark test suites [45] with dimensions up to 1000. The CEC2010 and CEC2013 test suites are widely used in large-scale problem algorithm testing, consisting of 20 and 15 LSOPs, respectively. According to the separability of the problems, the benchmark suites could be divided into three categories, fully separable problems, partially separable problems, and nonseparable problems [25]. Because CCMTO-MTES-DAKG can only solve fully separable and partially separable LSOPs, the first 18 benchmark test problems on CEC2010 test suite, and the first 11 benchmark test problems on CEC2013 test suite, are used to test the performance of CCMTO-MTES-DAKG. The stop criterion for all compared algorithms in this study is that the maximum number of fitness 
+The proposed CCMTO with MTES-DAKG (CCMTO-MTES-DAKG) is tested on CEC2010 and CEC2013 largescale benchmark test suites [45] with dimensions up to 1000. The CEC2010 and CEC2013 test suites are widely used in large-scale problem algorithm testing, consisting of 20 and 15 LSOPs, respectively. According to the separability of the problems, the benchmark suites could be divided into three categories, fully separable problems, partially separable problems, and nonseparable problems [25]. Because CCMTO-MTES-DAKG can only solve fully separable and partially separable LSOPs, the first 18 benchmark test problems on CEC2010 test suite, and the first 11 benchmark test problems on CEC2013 test suite, are used to test the performance of CCMTO-MTES-DAKG. The stop criterion for all compared algorithms in this study is that the maximum number of fitness evaluations MaxFEs reaches to $3\text{e}6$. EDG [12] is an efficient differential grouping method, and it is employed in CCMTO-MTES-DAKG in this study. The FEs used by EDG are included in the total number of FEs. The parameter settings for CCMTO and MTES-DAKG are given in TABLE I, and the parameters in bold fonts will be discussed further in a later section. 
+
+All algorithms were run independently 25 times in experiments. To better assess the comparison results, the Welch’s t-test was conducted for all comparison algorithms, and Wilcoxon’s rank-sum test with the Holm–Bonferroni correction was utilized for each parameter setting. The significance level was set at $\alpha = 0.05$. “+/≈/-” indicates that the proposed method is significant better/equal/worse than the comparison algorithm, respectively. 
 
 TABLE I
 
 THE PARAMETER SETTINGS FOR CCMTO-MTES-DAKG
 
-<table><tr><td colspan="9">The parameter settings for CCMTO framework:</td></tr><tr><td colspan="9">Number of subtasks in a MTOP:<eq>n_{sub} = 5</eq>Maximum dimension ratio:<eq>d_{max} = 2</eq>Threshold of objective function value variation: <eq>\varepsilon = 1e-6</eq></td></tr><tr><td colspan="9">The parameter settings for MTES-DAKG:</td></tr><tr><td colspan="9">Proportion coefficient of samples in the first region: <eq>\mu_1 = \begin{cases} 0.4 &amp; \text{if } \lambda \leq 6 \\ 0.3 &amp; \text{otherwise} \end{cases}</eq></td></tr><tr><td colspan="9">Proportion coefficient of samples in the second region: <eq>\mu_2 = \begin{cases} 0.6 &amp; \text{if } \lambda \leq 6 \\ 0.4 &amp; \text{otherwise} \end{cases}</eq></td></tr><tr><td colspan="9">KNN neighbor count: <eq>k = 5</eq>Gradient perturbation step: <eq>\beta = 1e-5</eq>Gradient correction coefficient: <eq>\varphi = 1</eq>Minimum elite sample number: <eq>n_{\min} = 0.3\lambda</eq>Maximum elite sample number: <eq>n_{\max} = 0.8\lambda</eq>Elite coefficient: <eq>a = 2</eq>Weight coefficient: <eq>\gamma = 2</eq>Number of external samples: <eq>\tau = 1</eq>Frequency of external sampling: <eq>fre = 0.1Maxgen</eq></td></tr><tr><td colspan="9">TABLE IITHE AVERAGE RANKINGS OF EACH ALGORITHM</td></tr><tr><td rowspan="2">Algorithm</td><td colspan="4">CEC2010</td><td colspan="4">CEC2013</td></tr><tr><td>+</td><td><eq>\approx</eq></td><td>-</td><td>Ranking</td><td>+</td><td><eq>\approx</eq></td><td>-</td><td>Ranking</td></tr><tr><td>EDGCC</td><td>16</td><td>0</td><td>2</td><td>8.94</td><td>8</td><td>0</td><td>3</td><td>10.09</td></tr><tr><td>CMAES-EDG</td><td>9</td><td>3</td><td>6</td><td>5.72</td><td>9</td><td>1</td><td>1</td><td>6.18</td></tr><tr><td>DCCC</td><td>13</td><td>0</td><td>5</td><td>7.06</td><td>7</td><td>0</td><td>4</td><td>4.64</td></tr><tr><td>EDCC-ERDG</td><td>18</td><td>0</td><td>0</td><td>10.89</td><td>10</td><td>0</td><td>1</td><td>9.64</td></tr><tr><td>MMO-CC</td><td>15</td><td>2</td><td>1</td><td>8.78</td><td>9</td><td>1</td><td>1</td><td>11.27</td></tr><tr><td>SSLPSO</td><td>13</td><td>2</td><td>3</td><td>7.00</td><td>8</td><td>0</td><td>3</td><td>6.45</td></tr><tr><td>DCBA</td><td>14</td><td>1</td><td>3</td><td>7.39</td><td>9</td><td>0</td><td>2</td><td>5.64</td></tr><tr><td>RCI-PSO</td><td>14</td><td>0</td><td>4</td><td>7.00</td><td>8</td><td>0</td><td>3</td><td>6.82</td></tr><tr><td>MSORL</td><td>13</td><td>1</td><td>4</td><td>8.89</td><td>8</td><td>0</td><td>3</td><td>8.91</td></tr><tr><td>GTDE</td><td>14</td><td>1</td><td>3</td><td>8.33</td><td>8</td><td>0</td><td>3</td><td>6.55</td></tr><tr><td>SRTP</td><td>14</td><td>0</td><td>4</td><td>8.06</td><td>9</td><td>0</td><td>2</td><td>5.82</td></tr><tr><td>SDLSO</td><td>12</td><td>0</td><td>6</td><td>7.61</td><td>8</td><td>0</td><td>3</td><td>9.00</td></tr><tr><td>RLLPSO</td><td>12</td><td>0</td><td>6</td><td>9.50</td><td>8</td><td>0</td><td>3</td><td>9.55</td></tr><tr><td>AGLDPSO</td><td>15</td><td>0</td><td>3</td><td>10.33</td><td>8</td><td>1</td><td>2</td><td>9.64</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>\</td><td>\</td><td>\</td><td>4.22</td><td>\</td><td>\</td><td>\</td><td>4.18</td></tr></table>
+<table><tr><td colspan="9">The parameter settings for CCMTO framework:</td></tr><tr><td colspan="9">Number of subtasks in a MTOP: $n_{\mathrm{sub}} = 5$ Maximum dimension ratio: $d_{\max} = 2$ Threshold of objective function value variation: $\varepsilon = 1\text{e-}6$</td></tr><tr><td colspan="9">The parameter settings for MTES-DAKG:</td></tr><tr><td colspan="9">Proportion coefficient of samples in the first region: $\mu_1 = \begin{cases} 0.4 &amp; \text{if } \lambda \le 6 \\ 0.3 &amp; \text{otherwise} \end{cases}$</td></tr><tr><td colspan="9">Proportion coefficient of samples in the second region: $\mu_2 = \begin{cases} 0.6 &amp; \text{if } \lambda \le 6 \\ 0.4 &amp; \text{otherwise} \end{cases}$</td></tr><tr><td colspan="9">KNN neighbor count: $k = 5$ Gradient perturbation step: $\beta = 1\text{e-}5$ Gradient correction coefficient: $\varphi = 1$ Minimum elite sample number: $n_{\min} = 0.3\lambda$ Maximum elite sample number: $n_{\max} = 0.8\lambda$ Elite coefficient: $a = 2$ Weight coefficient: $\gamma = 2$ Number of external samples: $\tau = 1$ Frequency of external sampling: $fre = 0.1 \mathrm{Maxgen}$</td></tr></table>
 
-evaluations MaxFEs reaches to 3e6. EDG [12] is an efficient differential grouping method, and it is employed in CCMTO-MTES-DAKG in this study. The FEs used by EDG are included in the total number of FEs. The parameter settings for CCMTO and MTES-DAKG are given in TABLE I, and the parameters in bold fonts will be discussed further in a later section. 
+TABLE II
+THE AVERAGE RANKINGS OF EACH ALGORITHM
 
-All algorithms were run independently 25 times in experiments. To better assess the comparison results, the Welch’s t-test was conducted for all comparison algorithms, and Wilcoxon’s rank-sum test with the Holm–Bonferroni correction was utilized for each parameter setting. The significance level was set at $\begin{array} { r } { \alpha = 0 . 0 5 . } \end{array}$ . “+/≈/-” indicates that the proposed method is significant better/equal/worse than the comparison algorithm, respectively. 
+<table><tr><td rowspan="2">Algorithm</td><td colspan="4">CEC2010</td><td colspan="4">CEC2013</td></tr><tr><td>+</td><td>$\approx$</td><td>-</td><td>Ranking</td><td>+</td><td>$\approx$</td><td>-</td><td>Ranking</td></tr><tr><td>EDGCC</td><td>16</td><td>0</td><td>2</td><td>8.94</td><td>8</td><td>0</td><td>3</td><td>10.09</td></tr><tr><td>CMAES-EDG</td><td>9</td><td>3</td><td>6</td><td>5.72</td><td>9</td><td>1</td><td>1</td><td>6.18</td></tr><tr><td>DCCC</td><td>13</td><td>0</td><td>5</td><td>7.06</td><td>7</td><td>0</td><td>4</td><td>4.64</td></tr><tr><td>EDCC-ERDG</td><td>18</td><td>0</td><td>0</td><td>10.89</td><td>10</td><td>0</td><td>1</td><td>9.64</td></tr><tr><td>MMO-CC</td><td>15</td><td>2</td><td>1</td><td>8.78</td><td>9</td><td>1</td><td>1</td><td>11.27</td></tr><tr><td>SSLPSO</td><td>13</td><td>2</td><td>3</td><td>7.00</td><td>8</td><td>0</td><td>3</td><td>6.45</td></tr><tr><td>DCBA</td><td>14</td><td>1</td><td>3</td><td>7.39</td><td>9</td><td>0</td><td>2</td><td>5.64</td></tr><tr><td>RCI-PSO</td><td>14</td><td>0</td><td>4</td><td>7.00</td><td>8</td><td>0</td><td>3</td><td>6.82</td></tr><tr><td>MSORL</td><td>13</td><td>1</td><td>4</td><td>8.89</td><td>8</td><td>0</td><td>3</td><td>8.91</td></tr><tr><td>GTDE</td><td>14</td><td>1</td><td>3</td><td>8.33</td><td>8</td><td>0</td><td>3</td><td>6.55</td></tr><tr><td>SRTP</td><td>14</td><td>0</td><td>4</td><td>8.06</td><td>9</td><td>0</td><td>2</td><td>5.82</td></tr><tr><td>SDLSO</td><td>12</td><td>0</td><td>6</td><td>7.61</td><td>8</td><td>0</td><td>3</td><td>9.00</td></tr><tr><td>RLLPSO</td><td>12</td><td>0</td><td>6</td><td>9.50</td><td>8</td><td>0</td><td>3</td><td>9.55</td></tr><tr><td>AGLDPSO</td><td>15</td><td>0</td><td>3</td><td>10.33</td><td>8</td><td>1</td><td>2</td><td>9.64</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>\</td><td>\</td><td>\</td><td>4.22</td><td>\</td><td>\</td><td>\</td><td>4.18</td></tr></table>
 
 ### B. Compared with State-of-the-art Algorithms
 
@@ -413,7 +475,7 @@ TABLE III
 
 RESULTS OF PARAMETER SENSITIVITY ANALYSIS
 
-<table><tr><td><eq>n_{sub}</eq></td><td>2</td><td>3</td><td>5</td><td>7</td><td>10</td><td>20</td></tr><tr><td>+/-/-</td><td>7/3/0</td><td>7/3/0</td><td>\</td><td>6/4/0</td><td>6/4/0</td><td>7/3/0</td></tr><tr><td>Ranking</td><td>3.50</td><td>4.70</td><td>1.20</td><td>3.70</td><td>3.10</td><td>3.90</td></tr><tr><td><eq>d_{max}</eq></td><td colspan="2">1</td><td>2</td><td colspan="2">4</td><td>limitless</td></tr><tr><td>+/-/-</td><td colspan="2">3/1/0</td><td>\</td><td colspan="2">3/1/0</td><td>4/0/0</td></tr><tr><td>Ranking</td><td colspan="2">2.00</td><td>1.00</td><td colspan="2">2.75</td><td>3.75</td></tr><tr><td>τ</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr><tr><td>+/-/-</td><td>7/3/0</td><td>\</td><td>8/2/0</td><td>8/2/0</td><td>8/1/1</td><td>7/2/1</td></tr><tr><td>Ranking</td><td>3.70</td><td>1.20</td><td>3.60</td><td>4.00</td><td>3.60</td><td>3.60</td></tr><tr><td>fre</td><td>everygen</td><td>0.05Maxgen</td><td>0.1Maxgen</td><td>0.2Maxgen</td><td>0.3Maxgen</td><td>0.5Maxgen</td></tr><tr><td>+/-/-</td><td>8/1/1</td><td>7/2/1</td><td>\</td><td>5/5/0</td><td>6/3/1</td><td>6/4/0</td></tr><tr><td>Ranking</td><td>4.60</td><td>3.60</td><td>1.90</td><td>3.50</td><td>3.30</td><td>3.60</td></tr></table>
+<table><tr><td>$n_{\mathrm{sub}}$</td><td>2</td><td>3</td><td>5</td><td>7</td><td>10</td><td>20</td></tr><tr><td>+/-/-</td><td>7/3/0</td><td>7/3/0</td><td>\</td><td>6/4/0</td><td>6/4/0</td><td>7/3/0</td></tr><tr><td>Ranking</td><td>3.50</td><td>4.70</td><td>1.20</td><td>3.70</td><td>3.10</td><td>3.90</td></tr><tr><td>$d_{\max}$</td><td colspan="2">1</td><td>2</td><td colspan="2">4</td><td>limitless</td></tr><tr><td>+/-/-</td><td colspan="2">3/1/0</td><td>\</td><td colspan="2">3/1/0</td><td>4/0/0</td></tr><tr><td>Ranking</td><td colspan="2">2.00</td><td>1.00</td><td colspan="2">2.75</td><td>3.75</td></tr><tr><td>$\tau$</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr><tr><td>+/-/-</td><td>7/3/0</td><td>\</td><td>8/2/0</td><td>8/2/0</td><td>8/1/1</td><td>7/2/1</td></tr><tr><td>Ranking</td><td>3.70</td><td>1.20</td><td>3.60</td><td>4.00</td><td>3.60</td><td>3.60</td></tr><tr><td>$fre$</td><td>everygen</td><td>0.05Maxgen</td><td>0.1Maxgen</td><td>0.2Maxgen</td><td>0.3Maxgen</td><td>0.5Maxgen</td></tr><tr><td>+/-/-</td><td>8/1/1</td><td>7/2/1</td><td>\</td><td>5/5/0</td><td>6/3/1</td><td>6/4/0</td></tr><tr><td>Ranking</td><td>4.60</td><td>3.60</td><td>1.90</td><td>3.50</td><td>3.30</td><td>3.60</td></tr></table>
 
 The comparison results of different algorithms on the CEC2010 and CEC2013 benchmark test suites are presented in Table SⅠ and Table SⅡ in the supplementary material, respectively. The average rankings of each algorithm are given in TABLE II. 
 
@@ -425,33 +487,33 @@ From the comparison results, it is obvious that the proposed CCMTO-MTES-DAKG is 
 
 ### C. Parameter Sensitivity Discussion
 
-In this section, the effects of these parameters (as listed in bold fonts in TABLE I) are discussed on the CEC2013 test suite. Because the test problems in CEC2013 test suite are more complex than those in CEC2010 test suite, and the results of parameter sensitivity are representative and universal. In the CCMTO framework, $n _ { s u b }$ and $d _ { m a x }$ are necessary to analyze their effects, because they can affect the optimization performance of EMTO algorithm. In the proposed MTES-DAKG, τ and fre are significant to external sampling. The detailed settings for these four parameters are given in Section S-Ⅰ of the supplementary material. It should be noted that the value of $d _ { m a x }$ does not affect the performance of the algorithm on fully separable problems, because the dimensions of all subproblems are equal 
-
-TABLE IV RESULTS OF COMPONENT ANALYSIS IN CCMTO-MTES-DAKG
-
-<table><tr><td colspan="5">Results on different resource allocation strategies for CCMTO-MTES-DAKG</td></tr><tr><td>Algorithm</td><td>+</td><td>≈</td><td>-</td><td>Ranking</td></tr><tr><td>CBCC1</td><td>8</td><td>3</td><td>0</td><td>3.82</td></tr><tr><td>CBCC2</td><td>8</td><td>3</td><td>0</td><td>4.73</td></tr><tr><td>CBCC3</td><td>8</td><td>2</td><td>1</td><td>3.73</td></tr><tr><td>CCFR</td><td>6</td><td>4</td><td>1</td><td>3.73</td></tr><tr><td>CCFR2</td><td>7</td><td>3</td><td>1</td><td>3.18</td></tr><tr><td>CCFR3</td><td>7</td><td>3</td><td>1</td><td>3.00</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>\</td><td>\</td><td>\</td><td>1.36</td></tr><tr><td colspan="5">Results on different EMTO algorithms for CCMTO</td></tr><tr><td>Algorithm</td><td>+</td><td>≈</td><td>-</td><td>Ranking</td></tr><tr><td>CCMTO-MaTDE</td><td>10</td><td>0</td><td>1</td><td>2.55</td></tr><tr><td>CCMTO-G-MFEA</td><td>10</td><td>0</td><td>1</td><td>3.00</td></tr><tr><td>CCMTO- MTEA-AD</td><td>10</td><td>1</td><td>0</td><td>3.18</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>\</td><td>\</td><td>\</td><td>1.18</td></tr><tr><td colspan="5">Results on CCMTO-MTES-DAKG with different components</td></tr><tr><td>Algorithm</td><td>+</td><td>≈</td><td>-</td><td>Ranking</td></tr><tr><td>wo-DA</td><td>7</td><td>3</td><td>0</td><td>3.30</td></tr><tr><td>wo-DT-DoS</td><td>8</td><td>2</td><td>0</td><td>3.40</td></tr><tr><td>wo-AS-SaS</td><td>7</td><td>3</td><td>0</td><td>2.70</td></tr><tr><td>wo-SD</td><td>6</td><td>4</td><td>0</td><td>3.30</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>\</td><td>\</td><td>\</td><td>1.10</td></tr></table>
-
-to 1. Therefore, partially separable problems f4-f7 of CEC2013 test suite as representative problems are tested. 
+In this section, the effects of these parameters (as listed in bold fonts in TABLE I) are discussed on the CEC2013 test suite. Because the test problems in CEC2013 test suite are more complex than those in CEC2010 test suite, and the results of parameter sensitivity are representative and universal. In the CCMTO framework, $n_{\mathrm{sub}}$ and $d_{\max}$ are necessary to analyze their effects, because they can affect the optimization performance of EMTO algorithm. In the proposed MTES-DAKG, $\tau$ and $fre$ are significant to external sampling. The detailed settings for these four parameters are given in Section S-Ⅰ of the supplementary material. It should be noted that the value of $d_{\max}$ does not affect the performance of the algorithm on fully separable problems, because the dimensions of all subproblems are equal to 1. Therefore, partially separable problems f4-f7 of CEC2013 test suite as representative problems are tested. 
 
 The comparison results and convergence curves are provided in Table SⅢ-Table SⅥ and Fig. S1-Fig. S4, respectively. The rankings for each parameter sensitivity analysis are provided in TABLE III. 
 
-The results of each setting for f3 are identical, because f3 is a fully separable function, the grouping method EDG cannot recognize its separability, and it is classified as a nonseparable function. Thus, the number of tasks is only one and it is not affected by these parameters. The result for f3 is not included in the calculation ofaverage rankings. 
+The results of each setting for f3 are identical, because f3 is a fully separable function, the grouping method EDG cannot recognize its separability, and it is classified as a nonseparable function. Thus, the number of tasks is only one and it is not affected by these parameters. The result for f3 is not included in the calculation of average rankings. 
 
-*1) Parameter $n_{sub}$*: The results of the significance tests show that $n _{sub} = 5$ performed best among all settings of $n _ { s u b } ,$ and it achieved the best average ranking. Because MTES-DAKG adopts a random source task selection strategy, without considering the similarities between subtasks. When the $n _ { s u b }$ is small, there is a relatively high probability of assigning subtasks with low similarity to the same MTOP and selecting tasks with low similarity as source tasks. Consequently, this can negatively affect the optimization efficiency, which is evident in the result. When the $n _ { s u b }$ is excessively large, the probability of negative transfer increases. Meanwhile, the optimization counts of subtasks with large contributions to fitness values will be reduced in comparison to those with smaller $n _ { s u b }$ due to limited computational resources, and the optimization performance can be affected. From the comparison results, this study suggests that the value of $n _ { s u b }$ is set to 5. 
+*1) Parameter $n_{\mathrm{sub}}$*: The results of the significance tests show that $n_{\mathrm{sub}} = 5$ performed best among all settings of $n_{\mathrm{sub}}$, and it achieved the best average ranking. Because MTES-DAKG adopts a random source task selection strategy, without considering the similarities between subtasks. When $n_{\mathrm{sub}}$ is small, there is a relatively high probability of assigning subtasks with low similarity to the same MTOP and selecting tasks with low similarity as source tasks. Consequently, this can negatively affect the optimization efficiency, which is evident in the result. When $n_{\mathrm{sub}}$ is excessively large, the probability of negative transfer increases. Meanwhile, the optimization counts of subtasks with large contributions to fitness values will be reduced in comparison to those with smaller $n_{\mathrm{sub}}$ due to limited computational resources, and the optimization performance can be affected. From the comparison results, this study suggests that the value of $n_{\mathrm{sub}}$ is set to 5. 
 
-*2) Parameter $d_{max}$*: The statistical test results show that $d_{max}$ = 2 performed best among all $d_{max}$ settings. It can be found that the optimization performance is poor when $d_{ m a x }$ is set to 4 or bigger. From the convergence curves, it can be seen that the algorithm can find a well solution and also exhibit the fastest convergence speed when $d _ { m a x } \ = \ 2$ . The obtained optimal solutions are poor for other settings of $d _ { m a x } ,$ and the optimization performances are inferior to $d _ { m a x } = 2$ . Therefore, it is recommended that $d _ { m a x } = 2$ in this study. 
+*2) Parameter $d_{\max}$*: The statistical test results show that $d_{\max} = 2$ performed best among all $d_{\max}$ settings. It can be found that the optimization performance is poor when $d_{\max}$ is set to 4 or bigger. From the convergence curves, it can be seen that the algorithm can find a well solution and also exhibit the fastest convergence speed when $d_{\max} = 2$. The obtained optimal solutions are poor for other settings of $d_{\max}$, and the optimization performances are inferior to $d_{\max} = 2$. Therefore, it is recommended that $d_{\max} = 2$ in this study. 
 
-*3) Parameter $\tau$*: From the results, it can be seen that $\tau = 1$ performs best among all τ settings. Theoretically, when τ is set to 0, no external samples are transferred to target distribution, which means that there is no knowledge transfer between source task and target task. Consequently, MTES-DAKG becomes equivalent to CMA-ES due to the absence ofknowledge transfer, resulting in a decrease in optimization performance. Because the number λ of generated samples in MTES-DAKG is less than 100 set in [48], if τ is set too large, the phenomenon of negative transfer can affect the performance of MTES-DAKG. In summary, it is recommended that τ be set to 1 in this study. 
+*3) Parameter $\tau$*: From the results, it can be seen that $\tau = 1$ performs best among all $\tau$ settings. Theoretically, when $\tau$ is set to 0, no external samples are transferred to target distribution, which means that there is no knowledge transfer between source task and target task. Consequently, MTES-DAKG becomes equivalent to CMA-ES due to the absence of knowledge transfer, resulting in a decrease in optimization performance. Because the number $\lambda$ of generated samples in MTES-DAKG is less than 100 set in [48], if $\tau$ is set too large, the phenomenon of negative transfer can affect the performance of MTES-DAKG. In summary, it is recommended that $\tau$ be set to 1 in this study. 
 
-*4) Parameter $fre$*: These results show that setting fre to 0.1Maxgen leads to the best performance on these test problems. If employing external sampling every generation, the algorithm performance will decrease due to excessive knowledge transfer, leading to negative transfer and trapping in local optimal solution. Low frequency of external sampling also decreases the optimization performance due to insufficient knowledge transfer. It suggests that fre be set to 0.1Maxgen in this study. 
+*4) Parameter $fre$*: These results show that setting $fre$ to $0.1 \mathrm{Maxgen}$ leads to the best performance on these test problems. If employing external sampling every generation, the algorithm performance will decrease due to excessive knowledge transfer, leading to negative transfer and trapping in local optimal solution. Low frequency of external sampling also decreases the optimization performance due to insufficient knowledge transfer. It suggests that $fre$ be set to $0.1 \mathrm{Maxgen}$ in this study. 
 
 ### D. Discussion of Components in CCMTO-MTES-DAKG
 
 In order to demonstrate the effectiveness and performance of the proposed contribution-based resource allocation strategy, the proposed MTES-DAKG for solving constructed MTOPs, and components in CCMTO-MTES-DAKG, this section conducts component analysis experiments. Six resource allocation strategies are tested to compare with the proposed one, they are CBCC1 [59], CBCC2 [59], CBCC3 [60], CCFR [18], CCFR2 [20], and CCFR3 [21]. To show the performance of the proposed MTES-DAKG for solving constructed MTOPs, this study also incorporates 3 EMTO algorithms with CCMTO, respectively. They are MaTDE [61], G-MFEA [40], and MTEA-AD [62]. This section conducts component analysis experiments to investigate the performance improvement of the proposed dynamic distance threshold domain KGxS with gradient correction (DT-DoS) and adaptive elite sampling shape KGxS (AS-SaS). Meanwhile, the effectiveness of stagnant subtask detection mechanism on the CCMTO framework is also discussed. Four types of variants are employed for comparison, which are detailed below. 
-1) wo-DA: equivalent to MTES-KG [48]. 
-2) wo-DT-DoS: Without DT-DoS, only AS-SaS. 
-3) wo-AS-SaS: Without AS-SaS, only DT-DoS. 
-4) wo-SD: Without stagnant subtask detection. 
+
+1) wo-DA: equivalent to MTES-KG [48].  
+2) wo-DT-DoS: Without DT-DoS, only AS-SaS.  
+3) wo-AS-SaS: Without AS-SaS, only DT-DoS.  
+4) wo-SD: Without stagnant subtask detection.  
+
+TABLE IV
+RESULTS OF COMPONENT ANALYSIS IN CCMTO-MTES-DAKG
+
+<table><tr><td colspan="5">Results on different resource allocation strategies for CCMTO-MTES-DAKG</td></tr><tr><td>Algorithm</td><td>+</td><td>≈</td><td>-</td><td>Ranking</td></tr><tr><td>CBCC1</td><td>8</td><td>3</td><td>0</td><td>3.82</td></tr><tr><td>CBCC2</td><td>8</td><td>3</td><td>0</td><td>4.73</td></tr><tr><td>CBCC3</td><td>8</td><td>2</td><td>1</td><td>3.73</td></tr><tr><td>CCFR</td><td>6</td><td>4</td><td>1</td><td>3.73</td></tr><tr><td>CCFR2</td><td>7</td><td>3</td><td>1</td><td>3.18</td></tr><tr><td>CCFR3</td><td>7</td><td>3</td><td>1</td><td>3.00</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>\</td><td>\</td><td>\</td><td>1.36</td></tr><tr><td colspan="5">Results on different EMTO algorithms for CCMTO</td></tr><tr><td>Algorithm</td><td>+</td><td>≈</td><td>-</td><td>Ranking</td></tr><tr><td>CCMTO-MaTDE</td><td>10</td><td>0</td><td>1</td><td>2.55</td></tr><tr><td>CCMTO-G-MFEA</td><td>10</td><td>0</td><td>1</td><td>3.00</td></tr><tr><td>CCMTO- MTEA-AD</td><td>10</td><td>1</td><td>0</td><td>3.18</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>\</td><td>\</td><td>\</td><td>1.18</td></tr><tr><td colspan="5">Results on CCMTO-MTES-DAKG with different components</td></tr><tr><td>Algorithm</td><td>+</td><td>≈</td><td>-</td><td>Ranking</td></tr><tr><td>wo-DA</td><td>7</td><td>3</td><td>0</td><td>3.30</td></tr><tr><td>wo-DT-DoS</td><td>8</td><td>2</td><td>0</td><td>3.40</td></tr><tr><td>wo-AS-SaS</td><td>7</td><td>3</td><td>0</td><td>2.70</td></tr><tr><td>wo-SD</td><td>6</td><td>4</td><td>0</td><td>3.30</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>\</td><td>\</td><td>\</td><td>1.10</td></tr></table>
 
 These ablation experiments are conducted on the 11 test problems of CEC2013 test suite. The detailed experimental results are shown in Table SⅦ-Table SⅨ in the supplementary material, and the convergence curves are given in Fig. S5- Fig. S7. The results of nonparametric tests are presented in TABLE IV. 
 
@@ -467,11 +529,13 @@ The statistical test results reveal that CCMTO-MTES-DAKG is superior to wo-SD, a
 
 ### E. REAL-WORLD APPLICATION
 
-TABLE V RESULTS OF COMPONENT ANALYSIS IN CCMTO-MTES-DAKG
+TABLE V 
+RESULTS OF PERFORMANCE COMPARISON FOR WSNs DEPLOYMENT
+
 <table><tr><td rowspan="2">Algorithm</td><td colspan="3">Number of sensor nodes = 500</td><td colspan="3">Number of sensor nodes = 1000</td></tr><tr><td>Average</td><td>Std</td><td>Best</td><td>Average</td><td>Std</td><td>Best</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>48.10%</td><td>0.0286</td><td>48.65%</td><td>80.02%</td><td>0.0233</td><td>80.18%</td></tr><tr><td>CCFR-CMAES</td><td>45.57%</td><td>0.0942</td><td>46.69%</td><td>75.98%</td><td>0.0545</td><td>76.26%</td></tr><tr><td>CCPSO2</td><td>46.28%</td><td>0.0541</td><td>46.80%</td><td>74.86%</td><td>0.0688</td><td>75.30%</td></tr><tr><td>TPLSO</td><td>47.16%</td><td>0.0852</td><td>47.62%</td><td>77.02%</td><td>0.0259</td><td>77.69%</td></tr><tr><td>CMAES</td><td>40.67%</td><td>0.0178</td><td>41.01%</td><td>64.10%</td><td>0.0245</td><td>64.83%</td></tr></table>
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/388df1e3a848063194e34719196a151bbcaa7f22a484bd38827c83a745e07bda.jpg)
-(a)1000D deployment
+(a) 1000D deployment
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/d0c1ad3e6a6a352eeadf9c18f9a0ac2d836cdc4ac65429d58879496686eb88ea.jpg)
 (b) 2000D deployment
@@ -482,7 +546,7 @@ The real-world application is the wireless sensor networks (WSNs) deployment, it
 
 From the statistical results, it can be found that CCMTO-MTES-DAKG outperformed the other algorithms in 1000D and 2000D problems, and it obtained the best average effective coverage in the 25 independent runs. As seen from the coverage curves, CCMTO-MTES-DAKG performed well in terms of the coverage and the convergence speed. CCMTO-MTES-DAKG can find a highly competitive solution with a small amount of computing resources, and it can fast converge to the optimal solution. Compared to the traditional decomposition-based and non-decomposition algorithms, the results illustrate the outstanding performance of the proposed CCMTO-MTES-DAKG for large scale WSNs deployment problems. 
 
-### V. CONCLUSIONS AND FUTURE WORK
+## V. CONCLUSIONS AND FUTURE WORK
 
 This study proposes a novel cooperative co-evolutionary multitask optimization (CCMTO) framework for solving large-scale optimization problems. In this framework, each subproblem is regarded as a distinct subtask, and these subtasks are constructed a series of MTOPs. CCMTO employs the EMTO algorithm to solve these MTOPs. To further improve the efficiency of the CCMTO framework, a construction strategy of multitask optimization problems and a contribution-based resource allocation strategy of MTOPs and subtasks are proposed. The first strategy considers both the number of subtasks and the dimensional disparity among tasks in a MTOP, which can select the appropriate number of subproblems to construct each MTOP. The second strategy determines the optimization order of MTOPs and allocates computational resources for each subtask by calculating the contribution of each MTOP. The mechanism of stagnant subtask detection can save computational resources on stagnant subtasks. To improve optimization performance of EMTO algorithm, a MTES with dynamic distance threshold and adaptive elite sampling KGxS (MTES-DAKG) is proposed, and it is incorporated into CCMTO framework to form CCMTO-MTES-DAKG. 
 
