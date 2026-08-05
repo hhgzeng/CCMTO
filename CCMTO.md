@@ -49,6 +49,7 @@ where $f(\mathbf{x})$ is the objective function, and $\mathbf{x}$ is a $d$-dimen
 In Fig. 1, it can be seen that the original LSOP is decomposed into $N$ low-dimensional subproblems, and the design variables of each subproblem are only a subset of the original problem. The variable grouping strategy generates these subproblems, and the resource allocation strategy selects which subproblem to be optimized in each co-evolutionary cycle after generating subproblems. Any EA can be utilized as the optimization solver to optimize the current subproblem. The red points in Fig. 1 represent collaborators selected from other subproblems, and they are combined to obtain the complete collaborators. Since the design variable in the current subproblem is only a segment of the original problem, individuals in the current subproblem need to combine with complete collaborators to form complete solutions when evaluating their fitness. In separable problems, the collaborator is generally set to the best solution so far.
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/3f2a9ad82c6f1b2fd37d1da95e0628e7a6c89e09be63d30cac065cf10fa24062.jpg)
+
 Fig. 1. Diagram of a general CCEA
 
 Obviously, when the origin LSOP is separable and can be grouped correctly, the optimization performance of CC framework can be great improved [45]. A partially separable problem is defined as follows
@@ -82,7 +83,9 @@ $$
 Since Gupta et al. [28] first proposed the multifactorial optimization (MFO) in 2016, the research on EMTO has gradually increased in recent years. The existing EMTO algorithms are mainly based on two knowledge transfer frameworks, the first one is MFO, and the second one is multipopulation evolution (MPE). The general framework of MFO and MPE is shown in **Fig. 2**.
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/57e0a050795c56f395731e1d29c2bb147e063bf618e02e1b7223962747197b06.jpg)
+
 (b) MPE
+
 Fig. 2. General framework of MFO and MPE
 
 MFO generates only one population to optimize all $K$ tasks, and it assigns the most suitable task to each individual by introducing the indicator called skill factors. MFO performs knowledge transfer across tasks through assortative mating. In order to achieve information transmission between parents and offspring, MFO employs the vertical cultural transmission via selective imitation to endow offspring with skill factors. Multifactorial evolutionary algorithm (MFEA) [28] is the first and most representative MFO algorithm. Afterward, several research on MFO algorithm [37], [46], such as the methods of knowledge transfer, source task selection, and similarity measure between tasks has studied.
@@ -93,7 +96,7 @@ MPE optimizes multiple tasks through multiple populations, and each population c
 
 Evolution strategy (ES) is a kind of EA that evolves through probability distribution and is widely used in black-box global optimization. Covariance matrix adaptation ES (CMA-ES) stands out from other ES in global search performance and robustness by introducing a covariance matrix. CMA-ES updates covariance matrix and step size based on the ranking and displacement vector of sampled candidate solutions to search toward the optimal solution adaptively. In recent years, several research studies have tried to introduce knowledge transfer into ES. Li et al. [48] proposed a knowledge-guided external sampling (KGxS) approach and integrated KGxS into ES to develop a multitask ES (MTES) called MTES-KG. This approach includes two types of knowledge transfer methods to transfer samples that employs optimal domain similarity and function shape similarity among tasks.
 
-**Algorithm 1: MTES-KG with CMA-ES**
+#### Algorithm 1: MTES-KG with CMA-ES
 
 **Input:** $\tau$ (external sample number), $K$ (number of tasks), $\alpha$ (knowledge type probability)  
 **Output:** $\mathbf{x}_{1:K}^*$ (optimal solution)
@@ -160,7 +163,7 @@ The proposed CCMTO overall framework is given in Algorithm 2, and Fig. 3 is the 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/e40546ceefca9246d3209659c1d9717a5a867449f3bbc5c29f44dbe544800453.jpg)
 Fig. 3. Flowchart of CCMTO
 
-**Algorithm 2: The Proposed CCMTO Framework**
+#### Algorithm 2: The Proposed CCMTO Framework
 
 **Input:** $f(\mathbf{x})$ (objective function)  
 **Output:** $\mathbf{x}^{\mathrm{best}}$ (final optimal global solution)
@@ -192,7 +195,7 @@ The construction strategy of multitask optimization problems is presented in Alg
 
 As is well known, the dimension of unified search space is set to the maximum dimension of all tasks in EMTO algorithms, so the dimensional disparity among tasks is an important factor affecting the efficiency of optimization. Excessive dimensional differences between tasks can lead to poor optimal solution performance and waste of computational resources. The maximum dimension ratio $d_{\max}$ is introduced in the strategy. When there is only one subproblem in a group, if the dimensional difference between this subproblem and the subproblem in the nearest group is too large, this subproblem will be optimized separately. If the dimension ratio of this subproblem and the subproblem in the nearest group is within $[1 / d_{\max}, d_{\max}]$, this subproblem is put into the nearest group. For subproblems in the same group, if their number is greater than 1 and not greater than $n_{\mathrm{sub}}$, these subproblems are constructed to a MTOP in step 17 of Algorithm 3. Otherwise, every $n_{\mathrm{sub}}$ subproblems are selected randomly as a MTOP to construct a series of MTOPs in step 19 of Algorithm 3. The number of subproblems to construct each MTOP is also a significant factor, as too many or too few subproblems can affect the optimization efficiency. The parameter sensitivity discussions on $d_{\max}$ and $n_{\mathrm{sub}}$ are in Section IV.
 
-**Algorithm 3: Construction Strategy of Multitask Optimization Problems**
+#### Algorithm 3: Construction Strategy of Multitask Optimization Problems
 
 **Input:** $\{s_{1}, \dots, s_{m}\}$ (decomposed subproblems), $\{d_{1}, \dots, d_{m}\}$ (subproblem dimensions), $n_{\mathrm{sub}}$ (number of subtasks in a MTOP), $d_{\max}$ (maximum dimension ratio)  
 **Output:** $\{T_{1}, \dots, T_{k}\}$ (constructed MTOPs)
@@ -236,7 +239,7 @@ $$
 
 where $\lambda$ is the number of samples of target distribution, $\mathbf{x}^{\mathrm{order}}$ is target distribution samples sorted by their fitness values in the descending order, $\mu_1$ and $\mu_2$ are the proportion coefficients of samples in the first and second regions, respectively.
 
-**Algorithm 4: Dynamic Distance Threshold Domain KGxS with Gradient Correction**
+#### Algorithm 4: Dynamic Distance Threshold Domain KGxS with Gradient Correction
 
 **Input:** $X_t = \{\mathbf{x}_{t,1}, \dots, \mathbf{x}_{t,\lambda}\} \sim \mathcal{N}(\mathbf{m}_t, \mathbf{C}_t)$ (target task samples), $n$ (dimension), $k$ (KNN count), $\beta$ (gradient step), $\mathcal{N}(\mathbf{m}_s, \mathbf{C}_s)$ (source distribution)  
 **Output:** $\hat{\mathbf{x}}$ (knowledge-guided external sample)
@@ -275,6 +278,7 @@ The dynamic distance threshold $\langle d \rangle_g$ is calculated to obtain the
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/aad30f8b4f545285878c008b4347612bdee648db8deedb5e8102fde4b9b71ec8.jpg)
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/8b82383b6d7e7b501a2d99eaf7cb141f03694a33087bd0cc839017fa0d4b4dc3.jpg)
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/fbe99a5bb45d19c6f6478e8bf1d8afb18254cf268dfbf48bcae8ef4447fcfc94.jpg)
+
 (c) KGxS with gradient correction
 
 Fig. 4. Dynamic distance threshold domain KGxS with gradient correction
@@ -303,7 +307,7 @@ $$
 
 where $w_{si}$ represents the weight of the $i$-th elite sample, and $\gamma$ is the weight coefficient. The random number $j$ is randomly excluded from the computation to ensure that the $w_{si}$ generated by each execution is different. In step 4 of Algorithm 5, the center position $\langle \mathbf{y} \rangle_S$ of elite samples $\mathbf{z}_{s,1:n}$ relative to the expectation $\mathbf{m}_s$ of the source distribution is computed. In the end, $\langle \mathbf{y} \rangle_S$ is transformed into an external sample of the target distribution by applying the domain alignment approach.
 
-**Algorithm 5: Adaptive Elite Sampling Shape KGxS**
+#### Algorithm 5: Adaptive Elite Sampling Shape KGxS
 
 **Input:** $X_t = \{\mathbf{x}_{t,1}, \dots, \mathbf{x}_{t,\lambda}\} \sim \mathcal{N}(\mathbf{m}_t, \mathbf{C}_t)$ (target task samples), $X_s = \{\mathbf{x}_{s,1}, \dots, \mathbf{x}_{s,\lambda}\} \sim \mathcal{N}(\mathbf{m}_s, \mathbf{C}_s)$ (source task samples)  
 **Output:** $\hat{\mathbf{x}}$ (knowledge-guided external sample)
@@ -393,7 +397,7 @@ $$
 
 where $f(\mathbf{x}_{\mathrm{last}}^{\mathrm{best}})$ and $f(\mathbf{x}^{\mathrm{best}})$ are the best overall objective values before and after $T_i$ undergoes optimization, respectively. The contribution-based resource allocation strategy of MTOPs and subtasks is shown in Algorithm 6.
 
-**Algorithm 6: Contribution-Based Resource Allocation Strategy of MTOPs and Subtasks**
+#### Algorithm 6: Contribution-Based Resource Allocation Strategy of MTOPs and Subtasks
 
 **Input:** $\{T_{1}, \dots, T_{k}\}$ (constructed MTOPs), subtasks in each MTOP $T_i = \{t_{i,1}, \dots, t_{i,n_i}\}$  
 **Output:** $\mathbf{x}^{\mathrm{best}}$ (final optimal global solution)
@@ -456,25 +460,69 @@ The proposed CCMTO with MTES-DAKG (CCMTO-MTES-DAKG) is tested on CEC2010 and CEC
 All algorithms were run independently 25 times in experiments. To better assess the comparison results, the Welch’s t-test was conducted for all comparison algorithms, and Wilcoxon’s rank-sum test with the Holm–Bonferroni correction was utilized for each parameter setting. The significance level was set at $\alpha = 0.05$. “+/≈/-” indicates that the proposed method is significant better/equal/worse than the comparison algorithm, respectively.
 
 TABLE I
-
 THE PARAMETER SETTINGS FOR CCMTO-MTES-DAKG
 
-<table><tr><td colspan="9">The parameter settings for CCMTO framework:</td></tr><tr><td colspan="9">Number of subtasks in a MTOP: $n_{\mathrm{sub}} = 5$ Maximum dimension ratio: $d_{\max} = 2$ Threshold of objective function value variation: $\varepsilon = 1\text{e-}6$</td></tr><tr><td colspan="9">The parameter settings for MTES-DAKG:</td></tr><tr><td colspan="9">Proportion coefficient of samples in the first region: $\mu_1 = \begin{cases} 0.4 &amp; \text{if } \lambda \le 6 \\ 0.3 &amp; \text{otherwise} \end{cases}$</td></tr><tr><td colspan="9">Proportion coefficient of samples in the second region: $\mu_2 = \begin{cases} 0.6 &amp; \text{if } \lambda \le 6 \\ 0.4 &amp; \text{otherwise} \end{cases}$</td></tr><tr><td colspan="9">KNN neighbor count: $k = 5$ Gradient perturbation step: $\beta = 1\text{e-}5$ Gradient correction coefficient: $\varphi = 1$ Minimum elite sample number: $n_{\min} = 0.3\lambda$ Maximum elite sample number: $n_{\max} = 0.8\lambda$ Elite coefficient: $a = 2$ Weight coefficient: $\gamma = 2$ Number of external samples: $\tau = 1$ Frequency of external sampling: $fre = 0.1 \mathrm{Maxgen}$</td></tr></table>
+| Parameter Category / Description | Value / Setting |
+| :--- | :--- |
+| **The parameter settings for CCMTO framework:** | |
+| Number of subtasks in a MTOP | $n_{\mathrm{sub}} = 5$ |
+| Maximum dimension ratio | $d_{\max} = 2$ |
+| Threshold of objective function value variation | $\varepsilon = 1\text{e-}6$ |
+| **The parameter settings for MTES-DAKG:** | |
+| Proportion coefficient of samples in the first region | $\mu_1 = \begin{cases} 0.4 & \text{if } \lambda \le 6 \\ 0.3 & \text{otherwise} \end{cases}$ |
+| Proportion coefficient of samples in the second region | $\mu_2 = \begin{cases} 0.6 & \text{if } \lambda \le 6 \\ 0.4 & \text{otherwise} \end{cases}$ |
+| KNN neighbor count | $k = 5$ |
+| Gradient perturbation step | $\beta = 1\text{e-}5$ |
+| Gradient correction coefficient | $\varphi = 1$ |
+| Minimum elite sample number | $n_{\min} = 0.3\lambda$ |
+| Maximum elite sample number | $n_{\max} = 0.8\lambda$ |
+| Elite coefficient | $a = 2$ |
+| Weight coefficient | $\gamma = 2$ |
+| Number of external samples | $\tau = 1$ |
+| Frequency of external sampling | $fre = 0.1 \mathrm{Maxgen}$ |
 
 TABLE II
 THE AVERAGE RANKINGS OF EACH ALGORITHM
 
-<table><tr><td rowspan="2">Algorithm</td><td colspan="4">CEC2010</td><td colspan="4">CEC2013</td></tr><tr><td>+</td><td>$\approx$</td><td>-</td><td>Ranking</td><td>+</td><td>$\approx$</td><td>-</td><td>Ranking</td></tr><tr><td>EDGCC</td><td>16</td><td>0</td><td>2</td><td>8.94</td><td>8</td><td>0</td><td>3</td><td>10.09</td></tr><tr><td>CMAES-EDG</td><td>9</td><td>3</td><td>6</td><td>5.72</td><td>9</td><td>1</td><td>1</td><td>6.18</td></tr><tr><td>DCCC</td><td>13</td><td>0</td><td>5</td><td>7.06</td><td>7</td><td>0</td><td>4</td><td>4.64</td></tr><tr><td>EDCC-ERDG</td><td>18</td><td>0</td><td>0</td><td>10.89</td><td>10</td><td>0</td><td>1</td><td>9.64</td></tr><tr><td>MMO-CC</td><td>15</td><td>2</td><td>1</td><td>8.78</td><td>9</td><td>1</td><td>1</td><td>11.27</td></tr><tr><td>SSLPSO</td><td>13</td><td>2</td><td>3</td><td>7.00</td><td>8</td><td>0</td><td>3</td><td>6.45</td></tr><tr><td>DCBA</td><td>14</td><td>1</td><td>3</td><td>7.39</td><td>9</td><td>0</td><td>2</td><td>5.64</td></tr><tr><td>RCI-PSO</td><td>14</td><td>0</td><td>4</td><td>7.00</td><td>8</td><td>0</td><td>3</td><td>6.82</td></tr><tr><td>MSORL</td><td>13</td><td>1</td><td>4</td><td>8.89</td><td>8</td><td>0</td><td>3</td><td>8.91</td></tr><tr><td>GTDE</td><td>14</td><td>1</td><td>3</td><td>8.33</td><td>8</td><td>0</td><td>3</td><td>6.55</td></tr><tr><td>SRTP</td><td>14</td><td>0</td><td>4</td><td>8.06</td><td>9</td><td>0</td><td>2</td><td>5.82</td></tr><tr><td>SDLSO</td><td>12</td><td>0</td><td>6</td><td>7.61</td><td>8</td><td>0</td><td>3</td><td>9.00</td></tr><tr><td>RLLPSO</td><td>12</td><td>0</td><td>6</td><td>9.50</td><td>8</td><td>0</td><td>3</td><td>9.55</td></tr><tr><td>AGLDPSO</td><td>15</td><td>0</td><td>3</td><td>10.33</td><td>8</td><td>1</td><td>2</td><td>9.64</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>\</td><td>\</td><td>\</td><td>4.22</td><td>\</td><td>\</td><td>\</td><td>4.18</td></tr></table>
+| Algorithm | CEC2010 (+) | CEC2010 ($\approx$) | CEC2010 (-) | CEC2010 Ranking | CEC2013 (+) | CEC2013 ($\approx$) | CEC2013 (-) | CEC2013 Ranking |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| EDGCC | 16 | 0 | 2 | 8.94 | 8 | 0 | 3 | 10.09 |
+| CMAES-EDG | 9 | 3 | 6 | 5.72 | 9 | 1 | 1 | 6.18 |
+| DCCC | 13 | 0 | 5 | 7.06 | 7 | 0 | 4 | 4.64 |
+| EDCC-ERDG | 18 | 0 | 0 | 10.89 | 10 | 0 | 1 | 9.64 |
+| MMO-CC | 15 | 2 | 1 | 8.78 | 9 | 1 | 1 | 11.27 |
+| SSLPSO | 13 | 2 | 3 | 7.00 | 8 | 0 | 3 | 6.45 |
+| DCBA | 14 | 1 | 3 | 7.39 | 9 | 0 | 2 | 5.64 |
+| RCI-PSO | 14 | 0 | 4 | 7.00 | 8 | 0 | 3 | 6.82 |
+| MSORL | 13 | 1 | 4 | 8.89 | 8 | 0 | 3 | 8.91 |
+| GTDE | 14 | 1 | 3 | 8.33 | 8 | 0 | 3 | 6.55 |
+| SRTP | 14 | 0 | 4 | 8.06 | 9 | 0 | 2 | 5.82 |
+| SDLSO | 12 | 0 | 6 | 7.61 | 8 | 0 | 3 | 9.00 |
+| RLLPSO | 12 | 0 | 6 | 9.50 | 8 | 0 | 3 | 9.55 |
+| AGLDPSO | 15 | 0 | 3 | 10.33 | 8 | 1 | 2 | 9.64 |
+| CCMTO-MTES-DAKG | \ | \ | \ | 4.22 | \ | \ | \ | 4.18 |
 
 ### B. Compared with State-of-the-art Algorithms
 
 The proposed CCMTO-MTES-DAKG is tested and compared with fourteen state-of-the-art large-scale algorithms in recent years, including 5 CC-based algorithms, namely EDGCC [10], CMAES-EDG [12], DCCC [19], DECC-ERDG [9], MMO-CC [49], and 9 non-decomposition algorithms, including SSLPSO [50], DCBA [51], RCI-PSO [52], MSORL [53], GTDE [54], SRTP [55], SDLSO [56], RLLPSO [57], AGLDPSO [58]. The parameters of these algorithms were set as recommended in the original papers.
 
 TABLE III
-
 RESULTS OF PARAMETER SENSITIVITY ANALYSIS
 
-<table><tr><td>$n_{\mathrm{sub}}$</td><td>2</td><td>3</td><td>5</td><td>7</td><td>10</td><td>20</td></tr><tr><td>+/-/-</td><td>7/3/0</td><td>7/3/0</td><td>\</td><td>6/4/0</td><td>6/4/0</td><td>7/3/0</td></tr><tr><td>Ranking</td><td>3.50</td><td>4.70</td><td>1.20</td><td>3.70</td><td>3.10</td><td>3.90</td></tr><tr><td>$d_{\max}$</td><td colspan="2">1</td><td>2</td><td colspan="2">4</td><td>limitless</td></tr><tr><td>+/-/-</td><td colspan="2">3/1/0</td><td>\</td><td colspan="2">3/1/0</td><td>4/0/0</td></tr><tr><td>Ranking</td><td colspan="2">2.00</td><td>1.00</td><td colspan="2">2.75</td><td>3.75</td></tr><tr><td>$\tau$</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr><tr><td>+/-/-</td><td>7/3/0</td><td>\</td><td>8/2/0</td><td>8/2/0</td><td>8/1/1</td><td>7/2/1</td></tr><tr><td>Ranking</td><td>3.70</td><td>1.20</td><td>3.60</td><td>4.00</td><td>3.60</td><td>3.60</td></tr><tr><td>$fre$</td><td>everygen</td><td>0.05Maxgen</td><td>0.1Maxgen</td><td>0.2Maxgen</td><td>0.3Maxgen</td><td>0.5Maxgen</td></tr><tr><td>+/-/-</td><td>8/1/1</td><td>7/2/1</td><td>\</td><td>5/5/0</td><td>6/3/1</td><td>6/4/0</td></tr><tr><td>Ranking</td><td>4.60</td><td>3.60</td><td>1.90</td><td>3.50</td><td>3.30</td><td>3.60</td></tr></table>
+| Parameter | Setting 1 | Setting 2 | Setting 3 | Setting 4 | Setting 5 | Setting 6 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **$n_{\mathrm{sub}}$** | **2** | **3** | **5** | **7** | **10** | **20** |
+| + / $\approx$ / - | 7/3/0 | 7/3/0 | \ | 6/4/0 | 6/4/0 | 7/3/0 |
+| Ranking | 3.50 | 4.70 | 1.20 | 3.70 | 3.10 | 3.90 |
+| **$d_{\max}$** | **1** | **1** | **2** | **4** | **4** | **limitless** |
+| + / $\approx$ / - | 3/1/0 | 3/1/0 | \ | 3/1/0 | 3/1/0 | 4/0/0 |
+| Ranking | 2.00 | 2.00 | 1.00 | 2.75 | 2.75 | 3.75 |
+| **$\tau$** | **0** | **1** | **2** | **3** | **4** | **5** |
+| + / $\approx$ / - | 7/3/0 | \ | 8/2/0 | 8/2/0 | 8/1/1 | 7/2/1 |
+| Ranking | 3.70 | 1.20 | 3.60 | 4.00 | 3.60 | 3.60 |
+| **$fre$** | **everygen** | **0.05Maxgen** | **0.1Maxgen** | **0.2Maxgen** | **0.3Maxgen** | **0.5Maxgen** |
+| + / $\approx$ / - | 8/1/1 | 7/2/1 | \ | 5/5/0 | 6/3/1 | 6/4/0 |
+| Ranking | 4.60 | 3.60 | 1.90 | 3.50 | 3.30 | 3.60 |
 
 The comparison results of different algorithms on the CEC2010 and CEC2013 benchmark test suites are presented in Table SⅠ and Table SⅡ in the supplementary material, respectively. The average rankings of each algorithm are given in TABLE II.
 
@@ -512,7 +560,27 @@ In order to demonstrate the effectiveness and performance of the proposed contri
 TABLE IV
 RESULTS OF COMPONENT ANALYSIS IN CCMTO-MTES-DAKG
 
-<table><tr><td colspan="5">Results on different resource allocation strategies for CCMTO-MTES-DAKG</td></tr><tr><td>Algorithm</td><td>+</td><td>≈</td><td>-</td><td>Ranking</td></tr><tr><td>CBCC1</td><td>8</td><td>3</td><td>0</td><td>3.82</td></tr><tr><td>CBCC2</td><td>8</td><td>3</td><td>0</td><td>4.73</td></tr><tr><td>CBCC3</td><td>8</td><td>2</td><td>1</td><td>3.73</td></tr><tr><td>CCFR</td><td>6</td><td>4</td><td>1</td><td>3.73</td></tr><tr><td>CCFR2</td><td>7</td><td>3</td><td>1</td><td>3.18</td></tr><tr><td>CCFR3</td><td>7</td><td>3</td><td>1</td><td>3.00</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>\</td><td>\</td><td>\</td><td>1.36</td></tr><tr><td colspan="5">Results on different EMTO algorithms for CCMTO</td></tr><tr><td>Algorithm</td><td>+</td><td>≈</td><td>-</td><td>Ranking</td></tr><tr><td>CCMTO-MaTDE</td><td>10</td><td>0</td><td>1</td><td>2.55</td></tr><tr><td>CCMTO-G-MFEA</td><td>10</td><td>0</td><td>1</td><td>3.00</td></tr><tr><td>CCMTO- MTEA-AD</td><td>10</td><td>1</td><td>0</td><td>3.18</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>\</td><td>\</td><td>\</td><td>1.18</td></tr><tr><td colspan="5">Results on CCMTO-MTES-DAKG with different components</td></tr><tr><td>Algorithm</td><td>+</td><td>≈</td><td>-</td><td>Ranking</td></tr><tr><td>wo-DA</td><td>7</td><td>3</td><td>0</td><td>3.30</td></tr><tr><td>wo-DT-DoS</td><td>8</td><td>2</td><td>0</td><td>3.40</td></tr><tr><td>wo-AS-SaS</td><td>7</td><td>3</td><td>0</td><td>2.70</td></tr><tr><td>wo-SD</td><td>6</td><td>4</td><td>0</td><td>3.30</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>\</td><td>\</td><td>\</td><td>1.10</td></tr></table>
+| Algorithm | + | $\approx$ | - | Ranking |
+| :--- | :---: | :---: | :---: | :---: |
+| **Results on different resource allocation strategies for CCMTO-MTES-DAKG** | | | | |
+| CBCC1 | 8 | 3 | 0 | 3.82 |
+| CBCC2 | 8 | 3 | 0 | 4.73 |
+| CBCC3 | 8 | 2 | 1 | 3.73 |
+| CCFR | 6 | 4 | 1 | 3.73 |
+| CCFR2 | 7 | 3 | 1 | 3.18 |
+| CCFR3 | 7 | 3 | 1 | 3.00 |
+| CCMTO-MTES-DAKG | \ | \ | \ | 1.36 |
+| **Results on different EMTO algorithms for CCMTO** | | | | |
+| CCMTO-MaTDE | 10 | 0 | 1 | 2.55 |
+| CCMTO-G-MFEA | 10 | 0 | 1 | 3.00 |
+| CCMTO- MTEA-AD | 10 | 1 | 0 | 3.18 |
+| CCMTO-MTES-DAKG | \ | \ | \ | 1.18 |
+| **Results on CCMTO-MTES-DAKG with different components** | | | | |
+| wo-DA | 7 | 3 | 0 | 3.30 |
+| wo-DT-DoS | 8 | 2 | 0 | 3.40 |
+| wo-AS-SaS | 7 | 3 | 0 | 2.70 |
+| wo-SD | 6 | 4 | 0 | 3.30 |
+| CCMTO-MTES-DAKG | \ | \ | \ | 1.10 |
 
 These ablation experiments are conducted on the 11 test problems of CEC2013 test suite. The detailed experimental results are shown in Table SⅦ-Table SⅨ in the supplementary material, and the convergence curves are given in Fig. S5- Fig. S7. The results of nonparametric tests are presented in TABLE IV.
 
@@ -531,7 +599,13 @@ The statistical test results reveal that CCMTO-MTES-DAKG is superior to wo-SD, a
 TABLE V
 RESULTS OF PERFORMANCE COMPARISON FOR WSNs DEPLOYMENT
 
-<table><tr><td rowspan="2">Algorithm</td><td colspan="3">Number of sensor nodes = 500</td><td colspan="3">Number of sensor nodes = 1000</td></tr><tr><td>Average</td><td>Std</td><td>Best</td><td>Average</td><td>Std</td><td>Best</td></tr><tr><td>CCMTO-MTES-DAKG</td><td>48.10%</td><td>0.0286</td><td>48.65%</td><td>80.02%</td><td>0.0233</td><td>80.18%</td></tr><tr><td>CCFR-CMAES</td><td>45.57%</td><td>0.0942</td><td>46.69%</td><td>75.98%</td><td>0.0545</td><td>76.26%</td></tr><tr><td>CCPSO2</td><td>46.28%</td><td>0.0541</td><td>46.80%</td><td>74.86%</td><td>0.0688</td><td>75.30%</td></tr><tr><td>TPLSO</td><td>47.16%</td><td>0.0852</td><td>47.62%</td><td>77.02%</td><td>0.0259</td><td>77.69%</td></tr><tr><td>CMAES</td><td>40.67%</td><td>0.0178</td><td>41.01%</td><td>64.10%</td><td>0.0245</td><td>64.83%</td></tr></table>
+| Algorithm | Sensor Nodes = 500 (Average) | Sensor Nodes = 500 (Std) | Sensor Nodes = 500 (Best) | Sensor Nodes = 1000 (Average) | Sensor Nodes = 1000 (Std) | Sensor Nodes = 1000 (Best) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| CCMTO-MTES-DAKG | 48.10% | 0.0286 | 48.65% | 80.02% | 0.0233 | 80.18% |
+| CCFR-CMAES | 45.57% | 0.0942 | 46.69% | 75.98% | 0.0545 | 76.26% |
+| CCPSO2 | 46.28% | 0.0541 | 46.80% | 74.86% | 0.0688 | 75.30% |
+| TPLSO | 47.16% | 0.0852 | 47.62% | 77.02% | 0.0259 | 77.69% |
+| CMAES | 40.67% | 0.0178 | 41.01% | 64.10% | 0.0245 | 64.83% |
 
 ![image](https://cdn-mineru.openxlab.org.cn/result/2026-08-02/e4396f3a-7739-44f2-a218-7a4643fa7c12/388df1e3a848063194e34719196a151bbcaa7f22a484bd38827c83a745e07bda.jpg)
 (a) 1000D deployment
