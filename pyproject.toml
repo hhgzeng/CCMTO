@@ -3,11 +3,11 @@ name = "ccmto"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-authors = [
-    { name = "hhgzeng", email = "hanhanguaizj@gmail.com" }
-]
+authors = [{ name = "hhgzeng", email = "hanhanguaizj@gmail.com" }]
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "numpy>=2.5.1",
+]
 
 [project.scripts]
 ccmto = "ccmto:main"
