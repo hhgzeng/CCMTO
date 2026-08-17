@@ -4,7 +4,7 @@
 
 CCMTO/
 │
-├── algorithms/
+├── src/
 │   ├── CCMTO/
 │   │   ├── CCMTO.py
 │   │   ├── MTOPConstruction.py
@@ -21,7 +21,7 @@ CCMTO/
 │   └── EDG.py
 │
 ├── benchmarks/
-│   └── CEC2013/
+│   └── cec2013_LSOPs.py
 │
 ├── baselines/
 │   ├── EDGCC/

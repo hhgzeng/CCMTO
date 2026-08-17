@@ -1,114 +1,204 @@
 """
-Efficient Differential Grouping (EDG)
+Efficient Differential Grouping (EDG / RDG)
 
-For large-scale optimization variable decomposition.
-
-Input:
-    func:
-        objective function
-
-    dim:
-        number of variables
-
-    lower:
-        lower bound
-
-    upper:
-        upper bound
-
-Output:
-    groups:
-        variable interaction groups
-
+Decomposes a large-scale optimization problem into separable and nonseparable subproblems
+using recursive differential grouping to minimize function evaluations.
 """
 
+from typing import Callable, List, Optional, Tuple, Union
 import numpy as np
 
 
 class EDG:
-    def __init__(self, func, dim, lower=-100, upper=100, delta=1e-4, epsilon=1e-3):
+    def __init__(
+        self,
+        func: Callable[[np.ndarray], float],
+        dim: int,
+        lower: Union[float, np.ndarray] = -100.0,
+        upper: Union[float, np.ndarray] = 100.0,
+        delta: Optional[float] = None,
+        epsilon: float = 1e-3,
+    ):
+        """
+        Initialize EDG decomposition solver.
 
+        Args:
+            func: Objective function to evaluate f(x)
+            dim: Total number of design variables
+            lower: Lower bound(s) of variables
+            upper: Upper bound(s) of variables
+            delta: Perturbation size (default: 0.5 * (upper - lower))
+            epsilon: Threshold for detecting variable interaction
+        """
         self.func = func
         self.dim = dim
 
-        self.lower = lower
-        self.upper = upper
+        if np.isscalar(lower):
+            self.lower = np.full(dim, float(lower))
+        else:
+            self.lower = np.asarray(lower, dtype=float)
 
-        self.delta = delta
+        if np.isscalar(upper):
+            self.upper = np.full(dim, float(upper))
+        else:
+            self.upper = np.asarray(upper, dtype=float)
+
+        if delta is None:
+            self.delta = (self.upper - self.lower) * 0.5
+        elif np.isscalar(delta):
+            self.delta = np.full(dim, float(delta))
+        else:
+            self.delta = np.asarray(delta, dtype=float)
+
         self.epsilon = epsilon
+        self.fe_count = 0
 
-    def _interaction_test(self, i, j):
+    def _eval(self, x: np.ndarray) -> float:
+        """Evaluate function and track FE count."""
+        self.fe_count += 1
+        return float(self.func(x))
+
+    def _interact(
+        self,
+        p1: np.ndarray,
+        p2: np.ndarray,
+        i: int,
+        var_subset: List[int],
+        delta_1: float,
+    ) -> bool:
         """
-        Differential grouping test
-        Determine whether variable i and j interact
+        Test whether variable i interacts with any variable in var_subset.
+        delta_1 = f(p1) - f(p1 + delta[i]*e_i)
+        We evaluate:
+            y3 = p1 with var_subset perturbed by delta
+            y4 = y3 with variable i also perturbed by delta[i]
+            delta_2 = f(y3) - f(y4)
+        If |delta_1 - delta_2| > epsilon, interaction exists.
         """
+        if not var_subset:
+            return False
 
-        x = np.random.uniform(self.lower, self.upper, self.dim)
-        f0 = self.func(x)
+        # y3: perturb var_subset
+        y3 = p1.copy()
+        y3[var_subset] = p2[var_subset]
+        f3 = self._eval(y3)
 
-        # xi + delta
-        x1 = x.copy()
-        x1[i] += self.delta
-        f1 = self.func(x1)
+        # y4: perturb var_subset and variable i
+        y4 = y3.copy()
+        y4[i] = p2[i]
+        f4 = self._eval(y4)
 
-        # xj + delta
-        x2 = x.copy()
-        x2[j] += self.delta
-        f2 = self.func(x2)
+        delta_2 = f3 - f4
+        diff = abs(delta_1 - delta_2)
+        return diff > self.epsilon
 
-        # xi,xj + delta
-        x3 = x.copy()
-        x3[i] += self.delta
-        x3[j] += self.delta
-        f3 = self.func(x3)
-
-        diff = f3 - f1 - f2 + f0
-
-        return abs(diff) > self.epsilon
-
-    def run(self):
+    def _find_interacting_variables(
+        self,
+        p1: np.ndarray,
+        p2: np.ndarray,
+        i: int,
+        candidates: List[int],
+        delta_1: float,
+    ) -> List[int]:
         """
-        EDG decomposition
+        Recursively find all variables in candidates that interact with variable i.
         """
-        groups = []
-        ungrouped = set(range(self.dim))
+        if not candidates:
+            return []
 
-        while ungrouped:
-            seed = min(ungrouped)
-            current = [seed]
-            ungrouped.remove(seed)
-            changed = True
+        # Check if i interacts with the whole candidate set
+        if not self._interact(p1, p2, i, candidates, delta_1):
+            return []
 
-            while changed:
-                changed = False
+        if len(candidates) == 1:
+            return list(candidates)
 
-                for j in list(ungrouped):
-                    flag = False
+        mid = len(candidates) // 2
+        left = candidates[:mid]
+        right = candidates[mid:]
 
-                    for i in current:
-                        if self._interaction_test(i, j):
-                            flag = True
-                            break
+        inter_left = self._find_interacting_variables(p1, p2, i, left, delta_1)
+        inter_right = self._find_interacting_variables(p1, p2, i, right, delta_1)
 
-                    if flag:
-                        current.append(j)
-                        ungrouped.remove(j)
-                        changed = True
+        return inter_left + inter_right
 
-            groups.append(current)
+    def run(self) -> Tuple[List[List[int]], int]:
+        """
+        Execute EDG variable grouping.
 
-        return groups
+        Returns:
+            groups: List of subproblems, where each subproblem is a list of variable indices.
+            fe_count: Number of function evaluations consumed during grouping.
+        """
+        self.fe_count = 0
+
+        # Base vectors
+        p1 = self.lower.copy()
+        p2 = self.lower + self.delta
+
+        # Base evaluation at p1
+        f_p1 = self._eval(p1)
+
+        # Precompute f(p1 with x[i] perturbed) for all i
+        delta_1_cache = {}
+        for i in range(self.dim):
+            y2 = p1.copy()
+            y2[i] = p2[i]
+            f_p2_i = self._eval(y2)
+            delta_1_cache[i] = f_p1 - f_p2_i
+
+        remaining = set(range(self.dim))
+        nonseparable_groups = []
+        separable_vars = []
+
+        while remaining:
+            seed = min(remaining)
+            remaining.remove(seed)
+
+            # Check if seed interacts with any remaining variables
+            candidates = sorted(list(remaining))
+            interacting = self._find_interacting_variables(
+                p1, p2, seed, candidates, delta_1_cache[seed]
+            )
+
+            if not interacting:
+                # seed is separable
+                separable_vars.append(seed)
+            else:
+                # seed belongs to a non-separable component
+                component = [seed] + interacting
+                for var in interacting:
+                    remaining.remove(var)
+
+                # Check if other members in the component interact with remaining variables
+                queue = list(interacting)
+                while queue and remaining:
+                    curr_var = queue.pop(0)
+                    rem_candidates = sorted(list(remaining))
+                    new_interacting = self._find_interacting_variables(
+                        p1, p2, curr_var, rem_candidates, delta_1_cache[curr_var]
+                    )
+                    for nvar in new_interacting:
+                        component.append(nvar)
+                        queue.append(nvar)
+                        remaining.remove(nvar)
+
+                nonseparable_groups.append(sorted(component))
+
+        # Build final subproblems list: nonseparable groups + 1-D separable groups
+        all_groups = nonseparable_groups + [[v] for v in sorted(separable_vars)]
+
+        return all_groups, self.fe_count
 
 
-def edg(func, dim, lower=-100, upper=100):
-    solver = EDG(func, dim, lower, upper)
+def edg(
+    func: Callable[[np.ndarray], float],
+    dim: int,
+    lower: Union[float, np.ndarray] = -100.0,
+    upper: Union[float, np.ndarray] = 100.0,
+    delta: Optional[float] = None,
+    epsilon: float = 1e-3,
+) -> Tuple[List[List[int]], int]:
+    """Convenience functional wrapper for EDG."""
+    solver = EDG(func, dim, lower=lower, upper=upper, delta=delta, epsilon=epsilon)
     return solver.run()
-
-
-if __name__ == "__main__":
-    # test function
-    def sphere(x):
-        return np.sum(x * x)
-
-    groups = edg(sphere, dim=10)
-    print(groups)
