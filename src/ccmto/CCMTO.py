@@ -29,7 +29,7 @@ class CCMTO:
         alpha: float = 0.5,
         tau: int = 1,
         fre_ratio: float = 0.1,
-        edg_epsilon: float = 1e-3,
+        edg_epsilon: float = 1e-2,
         custom_subproblems: Optional[List[List[int]]] = None,
         verbose: bool = True,
         log_interval: int = 5000,

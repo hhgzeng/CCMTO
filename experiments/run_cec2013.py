@@ -73,6 +73,9 @@ def run_cec2013_experiment(
     )
     print("=" * 70)
 
+    from decomposition.precompute_edg import get_or_compute_edg_subproblems
+    subproblems_cached, _ = get_or_compute_edg_subproblems(func_id)
+
     start_time = time.time()
 
     solver = CCMTO(
@@ -85,6 +88,7 @@ def run_cec2013_experiment(
         d_max=d_max_parsed,
         tau=tau,
         fre_ratio=fre_ratio,
+        custom_subproblems=subproblems_cached,
         verbose=True,
         log_interval=log_interval,
     )

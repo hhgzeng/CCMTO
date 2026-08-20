@@ -105,8 +105,6 @@ class MTES_DAKG:
         def evaluate_subtask(k: int, sub_x: np.ndarray) -> float:
             full_x = collaborator.copy()
             full_x[self.subtasks_vars[k]] = sub_x
-            if eval_counter is not None:
-                eval_counter[0] += 1
             return float(self.eval_func(full_x))
 
         # Synchronize optimizer mean with current global collaborator and establish baseline

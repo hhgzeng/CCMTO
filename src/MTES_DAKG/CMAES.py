@@ -178,11 +178,9 @@ class CMAES:
         rank1 = self.c1 * (
             np.outer(self.pc, self.pc) + (1.0 - hsig) * self.cc * (2.0 - self.cc) * self.C
         )
-        # Rank-mu update
-        rank_mu = np.zeros((self.dim, self.dim))
-        for i in range(self.mu):
-            rank_mu += self.weights[i] * np.outer(y[i], y[i])
-        rank_mu *= self.cmu
+        # Rank-mu update (vectorized)
+        weighted_y = y[:self.mu] * self.weights[:, np.newaxis]
+        rank_mu = self.cmu * (weighted_y.T @ y[:self.mu])
 
         self.C = (1.0 - self.c1 - self.cmu) * self.C + rank1 + rank_mu
 
@@ -194,5 +192,11 @@ class CMAES:
         span = float(np.max(self.upper - self.lower)) if np.all(np.isfinite(self.upper - self.lower)) else 1000.0
         self.sigma = float(np.clip(self.sigma, 1e-20, span))
 
-        # Decompose C
-        self._decompose_C()
+        # Lazy eigendecomposition for high-dimensional efficiency (Hansen standard)
+        if self.dim <= 20:
+            lazy_gap = 1
+        else:
+            lazy_gap = max(1, min(20, int(self.dim / 20)))
+
+        if self.gen % lazy_gap == 0 or self.gen == 1:
+            self._decompose_C()

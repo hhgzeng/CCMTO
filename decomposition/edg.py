@@ -17,7 +17,7 @@ class EDG:
         lower: Union[float, np.ndarray] = -100.0,
         upper: Union[float, np.ndarray] = 100.0,
         delta: Optional[float] = None,
-        epsilon: float = 1e-3,
+        epsilon: float = 1e-2,
     ):
         """
         Initialize EDG decomposition solver.
@@ -27,8 +27,8 @@ class EDG:
             dim: Total number of design variables
             lower: Lower bound(s) of variables
             upper: Upper bound(s) of variables
-            delta: Perturbation size (default: 0.5 * (upper - lower))
-            epsilon: Threshold for detecting variable interaction
+            delta: Perturbation size (default: 0.1 * (upper - lower))
+            epsilon: Relative threshold for detecting variable interaction
         """
         self.func = func
         self.dim = dim
@@ -44,7 +44,7 @@ class EDG:
             self.upper = np.asarray(upper, dtype=float)
 
         if delta is None:
-            self.delta = (self.upper - self.lower) * 0.5
+            self.delta = (self.upper - self.lower) * 0.1
         elif np.isscalar(delta):
             self.delta = np.full(dim, float(delta))
         else:
@@ -73,7 +73,7 @@ class EDG:
             y3 = p1 with var_subset perturbed by delta
             y4 = y3 with variable i also perturbed by delta[i]
             delta_2 = f(y3) - f(y4)
-        If |delta_1 - delta_2| > epsilon, interaction exists.
+        Uses relative interaction threshold to prevent floating-point scale noise.
         """
         if not var_subset:
             return False
@@ -90,7 +90,8 @@ class EDG:
 
         delta_2 = f3 - f4
         diff = abs(delta_1 - delta_2)
-        return diff > self.epsilon
+        scale = max(abs(delta_1), abs(delta_2), 1e-12)
+        return (diff / scale) > self.epsilon
 
     def _find_interacting_variables(
         self,
@@ -132,9 +133,9 @@ class EDG:
         """
         self.fe_count = 0
 
-        # Base vectors
-        p1 = self.lower.copy()
-        p2 = self.lower + self.delta
+        # Base vectors selected in search space interior
+        p1 = self.lower + 0.2 * (self.upper - self.lower)
+        p2 = p1 + self.delta
 
         # Base evaluation at p1
         f_p1 = self._eval(p1)
@@ -197,7 +198,7 @@ def edg(
     lower: Union[float, np.ndarray] = -100.0,
     upper: Union[float, np.ndarray] = 100.0,
     delta: Optional[float] = None,
-    epsilon: float = 1e-3,
+    epsilon: float = 1e-2,
 ) -> Tuple[List[List[int]], int]:
     """Convenience functional wrapper for EDG."""
     solver = EDG(func, dim, lower=lower, upper=upper, delta=delta, epsilon=epsilon)

@@ -86,17 +86,9 @@ class ResourceAllocation:
             self.stagnant_sets[i].clear()
             for det in self.stagnant_detectors[i]:
                 det.reset()
-            # Re-center optimizer mean around best_x and refresh search step size
+            # Synchronize optimizer mean with best_x without destroying adapted covariance and sigma
             for opt in self.optimizers[i].optimizers:
                 opt.m = opt.best_x.copy()
-                span = float(np.mean(opt.upper - opt.lower))
-                opt.sigma = max(0.1 * span, 1e-4)
-                opt.ps.fill(0.0)
-                opt.pc.fill(0.0)
-                opt.C = np.eye(opt.dim)
-                opt.invsqrtC = np.eye(opt.dim)
-                opt.B = np.eye(opt.dim)
-                opt.D = np.ones(opt.dim)
 
     def optimize_mtop(
         self,
@@ -135,8 +127,6 @@ class ResourceAllocation:
             cand_x[sub_vars] = best_sols[j]
 
         cand_f = float(self.eval_func(cand_x))
-        if fe_counter is not None:
-            fe_counter[0] += 1
 
         if cand_f < best_f:
             best_x = cand_x
