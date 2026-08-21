@@ -1,8 +1,8 @@
 """
 Statistical Analysis and Visualization Script for Table IV Reproduction in CCMTO paper.
 
-Analyzes experimental results across 3 representative modules on CEC2013 partially separable benchmarks:
-Functions: [4, 5, 6, 7, 9, 10, 13, 14]
+Analyzes experimental results across 3 representative modules on CEC2013 benchmarks:
+Functions: [1, 2, 4, 5, 9] (or dynamically detected from output directories)
 
 1. Module 1: Resource allocation strategies (CBCC1, CCFR3, CCMTO-MTES-DAKG)
 2. Module 2: EMTO algorithms (CCMTO-MaTDE, CCMTO-MTES-DAKG)
@@ -34,7 +34,7 @@ plt.rcParams["font.sans-serif"] = ["DejaVu Sans", "Arial", "Helvetica"]
 plt.rcParams["axes.edgecolor"] = "#cccccc"
 plt.rcParams["axes.linewidth"] = 1.0
 
-PARTIALLY_SEPARABLE_FUNCTIONS = [4, 5, 6, 7, 9, 10, 13, 14]
+DEFAULT_FUNCTIONS = [1, 2, 4, 5, 9]
 
 MODULE_CONFIGS = {
     "resource_allocation": {
@@ -58,12 +58,14 @@ MODULE_CONFIGS = {
 }
 
 
-def load_table4_results(results_root: str) -> Dict[str, Dict[str, Dict[int, Dict]]]:
+def load_table4_results(results_root: str) -> Tuple[Dict[str, Dict[str, Dict[int, Dict]]], List[int]]:
     """
     Load JSON result files into nested dict structure:
     data[module][algorithm][func_id] -> result dict
+    Also detects all unique function IDs present.
     """
     data = {}
+    found_fids = set()
     for mod_key in MODULE_CONFIGS:
         data[mod_key] = {}
         mod_dir = os.path.join(results_root, mod_key)
@@ -85,10 +87,12 @@ def load_table4_results(results_root: str) -> Dict[str, Dict[str, Dict[int, Dict
                         fid = res.get("func_id")
                         if fid is not None:
                             data[mod_key][algo_name][fid] = res
+                            found_fids.add(fid)
                     except Exception as e:
                         print(f"Warning loading {fpath}: {e}")
 
-    return data
+    functions = sorted(list(found_fids)) if found_fids else DEFAULT_FUNCTIONS
+    return data, functions
 
 
 def analyze_module(
@@ -135,7 +139,7 @@ def analyze_module(
                 outcome = "\\"
                 p_val = 1.0
             else:
-                if len(prop_errors) >= 3 and len(errors) >= 3:
+                if len(prop_errors) >= 2 and len(errors) >= 2:
                     try:
                         stat, p_val = mannwhitneyu(prop_errors, errors, alternative="two-sided")
                         if p_val < 0.05:
@@ -194,6 +198,7 @@ def analyze_module(
 def generate_table4_markdown(
     summaries: Dict[str, Dict[str, Any]],
     df_detailed_all: pd.DataFrame,
+    functions: List[int],
     output_path: str,
 ):
     """
@@ -204,7 +209,8 @@ def generate_table4_markdown(
     lines.append("")
     lines.append("## RESULTS OF COMPONENT ANALYSIS IN CCMTO-MTES-DAKG")
     lines.append("")
-    lines.append("Empirical results of component analysis on CEC2013 partially separable benchmarks [F4, F5, F6, F7, F9, F10, F13, F14] (10 independent runs per benchmark).")
+    func_str = ", ".join([f"F{fid}" for fid in functions])
+    lines.append(f"Empirical results of component analysis on CEC2013 benchmarks [{func_str}].")
     lines.append("Significance test: Wilcoxon rank-sum test at $\\alpha = 0.05$. `+/≈/-` indicates that the proposed method (`CCMTO-MTES-DAKG`) is significantly better / statistically equal / significantly worse than the comparison algorithm, respectively.")
     lines.append("")
 
@@ -284,7 +290,7 @@ def generate_module_chart(
     """
     Generate a 2-panel figure for a module:
     Panel A: Average Friedman Rankings Bar Chart
-    Panel B: Per-Benchmark Mean Error Comparison (Log10 scale) across CEC2013 partially separable benchmarks
+    Panel B: Per-Benchmark Mean Error Comparison (Log10 scale)
     """
     cfg = MODULE_CONFIGS[module_key]
     algos = cfg["algorithms"]
@@ -346,7 +352,7 @@ def generate_module_chart(
     # -------------------------------------------------------------
     # Panel B: Benchmark Performance (Log10 Mean Error)
     # -------------------------------------------------------------
-    functions = summary.get("functions", PARTIALLY_SEPARABLE_FUNCTIONS)
+    functions = summary.get("functions", DEFAULT_FUNCTIONS)
     fid_labels = [f"F{fid}" for fid in functions]
     x = np.arange(len(fid_labels))
     n_algos = len(avail_algos)
@@ -378,8 +384,8 @@ def generate_module_chart(
             linewidth=0.5,
         )
 
-    ax_perf.set_title(f"CEC2013 Partially Separable Performance ({cfg['title']})", fontsize=12, fontweight="bold", pad=12)
-    ax_perf.set_xlabel("Partially Separable Function", fontsize=11, fontweight="bold", labelpad=8)
+    ax_perf.set_title(f"CEC2013 Performance Comparison ({cfg['title']})", fontsize=12, fontweight="bold", pad=12)
+    ax_perf.set_xlabel("Benchmark Function", fontsize=11, fontweight="bold", labelpad=8)
     ax_perf.set_ylabel(r"$\log_{10}(\mathrm{Mean\ Error})$", fontsize=11, fontweight="bold")
     ax_perf.set_xticks(x)
     ax_perf.set_xticklabels(fid_labels, fontsize=10, fontweight="bold")
@@ -403,12 +409,11 @@ def main():
     print(f"Loading Table IV experimental results from: {results_dir}")
     print("=" * 80)
 
-    data = load_table4_results(results_dir)
+    data, functions = load_table4_results(results_dir)
     if not data or not any(data[m] for m in data):
         print(f"No result files found in {results_dir}! Please run experiments first.")
         return
 
-    functions = PARTIALLY_SEPARABLE_FUNCTIONS
     summaries = {}
     detailed_dfs = []
 
@@ -427,7 +432,7 @@ def main():
 
     # Generate Markdown Summary
     summary_md_path = os.path.join(results_dir, "table4_summary.md")
-    generate_table4_markdown(summaries, df_all_detailed, summary_md_path)
+    generate_table4_markdown(summaries, df_all_detailed, functions, summary_md_path)
 
     # Generate CSV dataset
     results_csv_path = os.path.join(results_dir, "table4_results.csv")

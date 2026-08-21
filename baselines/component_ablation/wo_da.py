@@ -25,15 +25,26 @@ def standard_domain_kgxs(
     lower: Union[float, np.ndarray],
     upper: Union[float, np.ndarray],
 ) -> np.ndarray:
-    """Standard Domain KGxS (Algorithm 1, Steps 16-22)."""
-    dim = len(m_t)
+    """Standard Domain KGxS (Algorithm 1, Steps 16-22) with dimension alignment."""
+    dim_t = len(m_t)
+    dim_s = len(m_s)
+
     # Mean distance of target population
     dists = np.linalg.norm(X_t - m_t, axis=1)
     d_mean = float(np.mean(dists)) if len(dists) > 0 else 1.0
 
-    # Sample z ~ N(m_s, sigma_s^2 * C_s)
-    z_raw = np.random.randn(dim)
-    z = m_s + sigma_s * (C_s_sqrt @ z_raw)
+    # Sample z ~ N(m_s, sigma_s^2 * C_s) in source space
+    z_raw = m_s + sigma_s * (C_s_sqrt @ np.random.randn(dim_s))
+    z_raw = np.nan_to_num(z_raw, nan=0.0)
+
+    # Align dimension to target task
+    if dim_s == dim_t:
+        z = z_raw
+    elif dim_s > dim_t:
+        z = z_raw[:dim_t]
+    else:
+        z = m_t.copy()
+        z[:dim_s] = z_raw
 
     dist_z = float(np.linalg.norm(z - m_t))
     if dist_z < d_mean:
@@ -55,7 +66,9 @@ def standard_shape_kgxs(
     lower: Union[float, np.ndarray],
     upper: Union[float, np.ndarray],
 ) -> np.ndarray:
-    """Standard Shape KGxS (Algorithm 1, Steps 23-27)."""
+    """Standard Shape KGxS (Algorithm 1, Steps 23-27) with dimension alignment."""
+    dim_t = len(m_t)
+    dim_s = len(m_s)
     popsize = len(X_s)
     mu = max(2, popsize // 2)
 
@@ -69,10 +82,20 @@ def standard_shape_kgxs(
     remain_elites = elite_X[remain_indices]
 
     # Unweighted average displacement
-    y_S = np.mean(remain_elites - m_s, axis=0)
+    y_S = np.mean(remain_elites - m_s, axis=0)  # shape (dim_s,)
 
-    # Transform to target space
-    trans_y = C_t_sqrt @ (C_s_inv_sqrt @ y_S)
+    # Transform to target space with cross-dimension handling
+    inv_y_s = C_s_inv_sqrt @ y_S
+    if dim_s == dim_t:
+        trans_y = C_t_sqrt @ inv_y_s
+    else:
+        if dim_s > dim_t:
+            aligned_y = inv_y_s[:dim_t]
+        else:
+            aligned_y = np.zeros(dim_t)
+            aligned_y[:dim_s] = inv_y_s
+        trans_y = C_t_sqrt @ aligned_y
+
     hat_x = m_t + trans_y
     return np.clip(hat_x, lower, upper)
 
@@ -125,6 +148,8 @@ class MTES_KG_Optimizer:
         def evaluate_subtask(k: int, sub_x: np.ndarray) -> float:
             full_x = collaborator.copy()
             full_x[self.subtasks_vars[k]] = sub_x
+            if eval_counter is not None:
+                eval_counter[0] += 1
             return float(self.eval_func(full_x))
 
         for k in range(self.num_tasks):

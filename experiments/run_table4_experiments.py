@@ -1,16 +1,19 @@
 """
 Experiment runner for Table IV (Representative Component Ablation Analysis) in CCMTO paper.
 
-Evaluates on CEC2013 LSGO partially separable benchmarks:
-Functions: [4, 5, 6, 7, 9, 10, 13, 14]
-(Excluding fully separable F1-F3 and fully non-separable F8, F11, F12, F15)
+Evaluates on selected CEC2013 LSGO benchmarks:
+Functions: [1, 2, 4, 5, 9]
 
-Modules & Selected Algorithms:
+Modules & Selected Representative Algorithms:
 1. Module 1 (Resource Allocation): CBCC1, CCFR3, CCMTO-MTES-DAKG
 2. Module 2 (EMTO Algorithms): CCMTO-MaTDE, CCMTO-MTES-DAKG
 3. Module 3 (Component Ablation): wo-DA, wo-DT-DoS, wo-AS-SaS, wo-SD, CCMTO-MTES-DAKG
 
-Each algorithm is evaluated for 10 independent runs per benchmark function.
+Parameters:
+- Runs per benchmark: 5
+- MaxFEs: 1,000,000
+- Parallel workers: 5
+
 Results are saved under:
 results/TABLE IV/<module_name>/<algorithm_name>/cec2013_f<func_id>.json
 
@@ -40,8 +43,8 @@ from baselines.emto_algorithms import CCMTO_MaTDE
 from baselines.component_ablation import WO_DA, WO_DT_DoS, WO_AS_SaS, WO_SD
 
 
-# Target partially separable functions for CEC2013 LSGO
-PARTIALLY_SEPARABLE_FUNCTIONS = [4, 5, 6, 7, 9, 10, 13, 14]
+# Selected benchmark functions (F1, F2, F4, F5, F9)
+DEFAULT_FUNCTIONS = [1, 2, 4, 5, 9]
 
 # Module algorithms mapping based on user selection
 MODULE_ALGORITHMS = {
@@ -143,10 +146,10 @@ def run_module_algorithm(
     algo_name: str,
     algo_cls: Any,
     functions: List[int],
-    num_runs: int = 10,
-    max_fes: int = 200_000,
+    num_runs: int = 5,
+    max_fes: int = 1_000_000,
     base_seed: int = 42,
-    num_workers: int = 4,
+    num_workers: int = 5,
     output_base_dir: str = "results/TABLE IV",
 ):
     """Run all benchmark functions for a specific algorithm within a module."""
@@ -166,7 +169,11 @@ def run_module_algorithm(
             try:
                 with open(json_path, "r", encoding="utf-8") as f:
                     existing = json.load(f)
-                if len(existing.get("runs", [])) >= num_runs and existing.get("max_fes") == max_fes:
+                if (
+                    len(existing.get("runs", [])) >= num_runs
+                    and existing.get("max_fes") == max_fes
+                    and not np.isinf(existing.get("mean_error", float("inf")))
+                ):
                     print(f"  [Skipping] [{algo_name}] F{fid} already completed ({num_runs} runs).")
                     continue
             except Exception:
@@ -219,7 +226,7 @@ def run_module_algorithm(
         summary_data = {
             "module": module_name,
             "algorithm": algo_name,
-            "benchmark": "CEC2013 LSGO (Partially Separable)",
+            "benchmark": "CEC2013 LSGO",
             "func_id": fid,
             "func_name": info.get("name", f"F{fid}"),
             "dimension": info["dimension"],
@@ -281,29 +288,35 @@ def main():
         help="Modules to evaluate",
     )
     parser.add_argument(
+        "--algorithms",
+        nargs="+",
+        default=None,
+        help="Specific algorithms to run (e.g. --algorithms wo-DA wo-DT-DoS wo-AS-SaS)",
+    )
+    parser.add_argument(
         "--functions",
         nargs="+",
         type=int,
-        default=PARTIALLY_SEPARABLE_FUNCTIONS,
-        help="CEC2013 partially separable function IDs (default: [4, 5, 6, 7, 9, 10, 13, 14])",
+        default=DEFAULT_FUNCTIONS,
+        help="CEC2013 function IDs (default: [1, 2, 4, 5, 9])",
     )
     parser.add_argument(
         "--num_runs",
         type=int,
-        default=10,
-        help="Number of independent runs per benchmark function (default: 10 as requested)",
+        default=5,
+        help="Number of independent runs per benchmark function (default: 5)",
     )
     parser.add_argument(
         "--max_fes",
         type=int,
-        default=200_000,
-        help="Maximum fitness evaluations (default: 200,000)",
+        default=1_000_000,
+        help="Maximum fitness evaluations (default: 1,000,000)",
     )
     parser.add_argument(
         "--workers",
         type=int,
-        default=min(8, os.cpu_count() or 4),
-        help="Number of parallel worker processes",
+        default=min(5, os.cpu_count() or 4),
+        help="Number of parallel worker processes (default: 5)",
     )
     parser.add_argument(
         "--output_dir",
@@ -315,15 +328,17 @@ def main():
     args = parser.parse_args()
 
     print("=" * 80)
-    print("STARTING TABLE IV STREAMLINED ABLATION EXPERIMENTS")
+    print("STARTING TABLE IV REPRESENTATIVE ABLATION EXPERIMENTS")
     print(f"Modules: {args.modules}")
-    print(f"Partially Separable Functions ({len(args.functions)}): {args.functions}")
+    if args.algorithms:
+        print(f"Selected Algorithms: {args.algorithms}")
+    print(f"Functions ({len(args.functions)}): {args.functions}")
     print(f"Runs per benchmark: {args.num_runs} | MaxFEs: {args.max_fes:,} | Workers: {args.workers}")
     print(f"Output Directory: {args.output_dir}")
     print("=" * 80)
 
-    # First, run baseline CCMTO-MTES-DAKG in resource_allocation
-    if "resource_allocation" in args.modules:
+    # First, run baseline CCMTO-MTES-DAKG in resource_allocation if requested
+    if "resource_allocation" in args.modules and (args.algorithms is None or "CCMTO-MTES-DAKG" in args.algorithms):
         run_module_algorithm(
             module_name="resource_allocation",
             algo_name="CCMTO-MTES-DAKG",
@@ -339,6 +354,9 @@ def main():
     for mod_name in args.modules:
         algos_dict = MODULE_ALGORITHMS[mod_name]
         for algo_name, algo_cls in algos_dict.items():
+            if args.algorithms is not None and algo_name not in args.algorithms:
+                continue
+
             if algo_name == "CCMTO-MTES-DAKG" and mod_name == "resource_allocation":
                 continue  # already ran above
 

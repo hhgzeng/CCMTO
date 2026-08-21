@@ -1,5 +1,5 @@
 {
-  "module": "resource_allocation",
+  "module": "component_ablation",
   "algorithm": "CCMTO-MTES-DAKG",
   "benchmark": "CEC2013 LSGO",
   "func_id": 4,
