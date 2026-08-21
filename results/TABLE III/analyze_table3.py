@@ -1,6 +1,6 @@
 """
 Statistical Analysis and Visualization Script for Table III Reproduction in CCMTO paper.
-(Evaluates n_sub [2, 3, 5, 7, 10, 20] and d_max [1, 2, 4, limitless] on CEC2013 LSGO F4-F7)
+(Evaluates n_sub [2, 3, 5, 7] and d_max [1, 2, 4, limitless] on CEC2013 LSGO F4-F7)
 
 Generates:
 1. table3_summary.md: Summary table matching Table III layout + detailed benchmark results
@@ -34,7 +34,7 @@ PARAMS_INFO = {
     "n_sub": {
         "latex_name": "$n_{\\mathrm{sub}}$",
         "display_name": "Number of Subtasks in a MTOP (n_sub)",
-        "settings": ["2", "3", "5", "7", "10", "20"],
+        "settings": ["2", "3", "5", "7"],
         "baseline_setting": "5",
         "functions": [4, 5, 6, 7],
         "ranking_functions": [4, 5, 6, 7],
@@ -317,10 +317,10 @@ def generate_charts(
         baseline = info["baseline_setting"]
         avg_ranks = summary.get("avg_ranks", {})
 
-        fig, ax = plt.subplots(figsize=(8, 5), dpi=300)
+        fig, ax = plt.subplots(figsize=(7, 4.8), dpi=300)
         ranks_list = [avg_ranks.get(s, 0.0) for s in available_settings]
         colors = [
-            "#1f77b4" if s == baseline else "#6baed6" if avg_ranks.get(s, 99) < 3.0 else "#9ecae1"
+            "#1f77b4" if s == baseline else "#6baed6" if avg_ranks.get(s, 99) < 2.5 else "#9ecae1"
             for s in available_settings
         ]
 
@@ -330,7 +330,7 @@ def generate_charts(
             color=colors,
             edgecolor="#333333",
             linewidth=1.0,
-            width=0.55,
+            width=0.5,
         )
 
         for bar, s in zip(bars, available_settings):
@@ -340,7 +340,7 @@ def generate_charts(
                 label_text += " (Best)"
             ax.text(
                 bar.get_x() + bar.get_width() / 2,
-                h + 0.08,
+                h + 0.06,
                 label_text,
                 ha="center",
                 va="bottom",
@@ -349,10 +349,10 @@ def generate_charts(
                 color="#0b3c5d" if s == baseline else "#333333",
             )
 
-        ax.set_title("Average Friedman Ranking for $n_{\\mathrm{sub}}$ Sensitivity (CEC2013 F4-F7)\n(Lower is Better)", fontsize=13, fontweight="bold", pad=12)
+        ax.set_title("Average Friedman Ranking for $n_{\\mathrm{sub}}$ Sensitivity (CEC2013 F4-F7)\n(Lower is Better)", fontsize=12, fontweight="bold", pad=12)
         ax.set_xlabel("Parameter Setting ($n_{\\mathrm{sub}}$)", fontsize=11, fontweight="bold", labelpad=8)
         ax.set_ylabel("Average Ranking", fontsize=11, fontweight="bold")
-        ax.set_ylim(0, max(ranks_list) + 1.2)
+        ax.set_ylim(0, max(ranks_list) + 1.0)
         ax.grid(axis="y", linestyle="--", alpha=0.6)
         plt.tight_layout()
 
@@ -371,7 +371,7 @@ def generate_charts(
         baseline = info["baseline_setting"]
         ranking_fids = summary.get("ranking_fids", [4, 5, 6, 7])
 
-        fig, ax = plt.subplots(figsize=(10, 5.5), dpi=300)
+        fig, ax = plt.subplots(figsize=(9, 5), dpi=300)
         fid_labels = [f"F{fid}" for fid in ranking_fids]
         x = np.arange(len(fid_labels))
         n_settings = len(available_settings)
@@ -402,7 +402,7 @@ def generate_charts(
                 linewidth=0.5,
             )
 
-        ax.set_title("Performance Comparison across Benchmarks for $n_{\\mathrm{sub}}$ (CEC2013 F4-F7)", fontsize=13, fontweight="bold", pad=12)
+        ax.set_title("Performance Comparison across Benchmarks for $n_{\\mathrm{sub}}$ (CEC2013 F4-F7)", fontsize=12, fontweight="bold", pad=12)
         ax.set_xlabel("CEC2013 Benchmark Function", fontsize=11, fontweight="bold", labelpad=8)
         ax.set_ylabel(r"$\log_{10}(\mathrm{Mean\ Error})$", fontsize=11, fontweight="bold")
         ax.set_xticks(x)
@@ -427,10 +427,10 @@ def generate_charts(
         baseline = info["baseline_setting"]
         avg_ranks = summary.get("avg_ranks", {})
 
-        fig, ax = plt.subplots(figsize=(8, 5), dpi=300)
+        fig, ax = plt.subplots(figsize=(7, 4.8), dpi=300)
         ranks_list = [avg_ranks.get(s, 0.0) for s in available_settings]
         colors = [
-            "#2ca02c" if s == baseline else "#74c476" if avg_ranks.get(s, 99) < 3.0 else "#a1d99b"
+            "#2ca02c" if s == baseline else "#74c476" if avg_ranks.get(s, 99) < 2.5 else "#a1d99b"
             for s in available_settings
         ]
 
@@ -440,7 +440,7 @@ def generate_charts(
             color=colors,
             edgecolor="#333333",
             linewidth=1.0,
-            width=0.55,
+            width=0.5,
         )
 
         for bar, s in zip(bars, available_settings):
@@ -450,7 +450,7 @@ def generate_charts(
                 label_text += " (Best)"
             ax.text(
                 bar.get_x() + bar.get_width() / 2,
-                h + 0.08,
+                h + 0.06,
                 label_text,
                 ha="center",
                 va="bottom",
@@ -459,10 +459,10 @@ def generate_charts(
                 color="#0f5c1e" if s == baseline else "#333333",
             )
 
-        ax.set_title("Average Friedman Ranking for $d_{\\max}$ Sensitivity (CEC2013 F4-F7)\n(Lower is Better)", fontsize=13, fontweight="bold", pad=12)
+        ax.set_title("Average Friedman Ranking for $d_{\\max}$ Sensitivity (CEC2013 F4-F7)\n(Lower is Better)", fontsize=12, fontweight="bold", pad=12)
         ax.set_xlabel("Parameter Setting ($d_{\\max}$)", fontsize=11, fontweight="bold", labelpad=8)
         ax.set_ylabel("Average Ranking", fontsize=11, fontweight="bold")
-        ax.set_ylim(0, max(ranks_list) + 1.2)
+        ax.set_ylim(0, max(ranks_list) + 1.0)
         ax.grid(axis="y", linestyle="--", alpha=0.6)
         plt.tight_layout()
 
@@ -481,7 +481,7 @@ def generate_charts(
         baseline = info["baseline_setting"]
         ranking_fids = summary.get("ranking_fids", [4, 5, 6, 7])
 
-        fig, ax = plt.subplots(figsize=(10, 5.5), dpi=300)
+        fig, ax = plt.subplots(figsize=(9, 5), dpi=300)
         fid_labels = [f"F{fid}" for fid in ranking_fids]
         x = np.arange(len(fid_labels))
         n_settings = len(available_settings)
@@ -512,7 +512,7 @@ def generate_charts(
                 linewidth=0.5,
             )
 
-        ax.set_title("Performance Comparison across Benchmarks for $d_{\\max}$ (CEC2013 F4-F7)", fontsize=13, fontweight="bold", pad=12)
+        ax.set_title("Performance Comparison across Benchmarks for $d_{\\max}$ (CEC2013 F4-F7)", fontsize=12, fontweight="bold", pad=12)
         ax.set_xlabel("CEC2013 Benchmark Function", fontsize=11, fontweight="bold", labelpad=8)
         ax.set_ylabel(r"$\log_{10}(\mathrm{Mean\ Error})$", fontsize=11, fontweight="bold")
         ax.set_xticks(x)

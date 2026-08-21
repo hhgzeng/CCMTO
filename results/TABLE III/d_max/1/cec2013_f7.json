@@ -14,7 +14,7 @@
   "median_error": 98245765.38550016,
   "mean_fitness": 138544712.14017278,
   "std_fitness": 113144695.51549225,
-  "mean_time_seconds": 41.75776615142822,
+  "mean_time_seconds": 39.85123767852783,
   "runs": [
     {
       "run_idx": 1,
@@ -23,7 +23,7 @@
       "best_known": 0.0,
       "error": 41839587.503938824,
       "total_fes": 1000001,
-      "elapsed_seconds": 41.92342495918274,
+      "elapsed_seconds": 39.92509484291077,
       "history": [
         [
           15664,
@@ -438,7 +438,7 @@
       "best_known": 0.0,
       "error": 160385398.46805465,
       "total_fes": 1000001,
-      "elapsed_seconds": 41.984642028808594,
+      "elapsed_seconds": 40.32048296928406,
       "history": [
         [
           15664,
@@ -865,7 +865,7 @@
       "best_known": 0.0,
       "error": 67435526.8988839,
       "total_fes": 1000001,
-      "elapsed_seconds": 41.40555191040039,
+      "elapsed_seconds": 39.367597818374634,
       "history": [
         [
           15664,
@@ -1336,7 +1336,7 @@
       "best_known": 0.0,
       "error": 98245765.38550016,
       "total_fes": 1000001,
-      "elapsed_seconds": 41.98877692222595,
+      "elapsed_seconds": 40.1835298538208,
       "history": [
         [
           15664,
@@ -1759,7 +1759,7 @@
       "best_known": 0.0,
       "error": 324817282.4444864,
       "total_fes": 1000003,
-      "elapsed_seconds": 41.48643493652344,
+      "elapsed_seconds": 39.4594829082489,
       "history": [
         [
           15664,

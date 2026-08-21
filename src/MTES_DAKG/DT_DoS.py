@@ -96,12 +96,12 @@ def dt_dos(
 
     z_raw = np.nan_to_num(z_raw, nan=0.0)
 
-    # Ensure dimension matches target
+    # Ensure dimension matches target (in unified search space)
     if len(z_raw) != dim:
         if len(z_raw) > dim:
             z = z_raw[:dim]
         else:
-            z = np.zeros(dim)
+            z = m_t.copy()
             z[: len(z_raw)] = z_raw
     else:
         z = z_raw

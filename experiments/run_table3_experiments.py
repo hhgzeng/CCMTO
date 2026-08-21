@@ -2,7 +2,7 @@
 Experiment runner for Table III reproduction in CCMTO paper.
 
 Conducts parameter sensitivity analysis across parameters:
-1. n_sub: [2, 3, 5, 7, 10, 20] (Tested on CEC2013 F4-F7)
+1. n_sub: [2, 3, 5, 7] (Tested on CEC2013 F4-F7)
 2. d_max: [1, 2, 4, limitless] (Tested on CEC2013 F4-F7)
 
 Each setting is evaluated for 10 independent runs per benchmark function.
@@ -41,7 +41,7 @@ DEFAULT_PARAMS = {
 # Parameter definitions and tested settings for Table III (F4-F7)
 PARAMETER_CONFIGS = {
     "n_sub": {
-        "settings": [2, 3, 5, 7, 10, 20],
+        "settings": [2, 3, 5, 7],  # Settings 2, 3, 5, 7 as requested
         "functions": [4, 5, 6, 7],  # CEC2013 F4 to F7
         "default_setting": 5,
     },
@@ -296,7 +296,7 @@ def sync_baseline_results(output_dir: str, num_runs: int, max_fes: int):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run Table III Parameter Sensitivity Reproduction (n_sub & d_max on CEC2013 F4-F7)")
+    parser = argparse.ArgumentParser(description="Run Table III Parameter Sensitivity Reproduction (n_sub [2,3,5,7] & d_max on CEC2013 F4-F7)")
     parser.add_argument(
         "--parameters",
         nargs="+",
@@ -339,7 +339,7 @@ def main():
     args = parser.parse_args()
 
     print("=" * 80)
-    print("STARTING TABLE III PARAMETER SENSITIVITY EXPERIMENTS (n_sub & d_max on F4-F7)")
+    print("STARTING TABLE III PARAMETER SENSITIVITY EXPERIMENTS (n_sub [2,3,5,7] & d_max on F4-F7)")
     print(f"Selected Parameters: {args.parameters}")
     print(f"Functions: {args.functions}")
     print(f"Runs per Benchmark: {args.num_runs} | MaxFEs: {args.max_fes:,} | Workers: {args.workers}")
