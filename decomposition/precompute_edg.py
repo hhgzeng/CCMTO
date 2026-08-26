@@ -4,16 +4,20 @@ Since benchmark objective landscape interactions are deterministic, running EDG 
 benchmark function saves massive computational overhead across repeated Monte Carlo runs.
 """
 
-import json
 import os
 import sys
 import time
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from cec2013lsgo.cec2013 import Benchmark
-from decomposition.edg import EDG
+import json
 
+from cec2013lsgo.cec2013 import Benchmark
+
+from decomposition.edg import EDG
+from src.utils import cleanup_benchmark_csv, register_csv_cleanup, save_json
+
+register_csv_cleanup()
 
 CACHE_FILE = os.path.join(os.path.dirname(__file__), "edg_subproblems_cec2013.json")
 
@@ -40,33 +44,38 @@ def get_or_compute_edg_subproblems(func_id: int, epsilon: float = 1e-2):
     lower = info["lower"]
     upper = info["upper"]
 
-    start_t = time.time()
-    edg_solver = EDG(func=func, dim=dim, lower=lower, upper=upper, epsilon=epsilon)
-    subproblems, edg_fes = edg_solver.run()
-    elapsed = time.time() - start_t
+    try:
+        start_t = time.time()
+        edg_solver = EDG(func=func, dim=dim, lower=lower, upper=upper, epsilon=epsilon)
+        subproblems, edg_fes = edg_solver.run()
+        elapsed = time.time() - start_t
 
-    print(
-        f"[EDG Cache] F{func_id} decomposition done in {elapsed:.2f}s: {len(subproblems)} subproblems found using {edg_fes} FEs."
-    )
+        print(
+            f"[EDG Cache] F{func_id} decomposition done in {elapsed:.2f}s: {len(subproblems)} subproblems found using {edg_fes} FEs."
+        )
 
-    cache[fid_str] = {
-        "subproblems": subproblems,
-        "fes": edg_fes,
-        "num_subproblems": len(subproblems),
-        "sizes": [len(s) for s in subproblems],
-    }
+        cache[fid_str] = {
+            "subproblems": subproblems,
+            "fes": edg_fes,
+            "num_subproblems": len(subproblems),
+            "sizes": [len(s) for s in subproblems],
+        }
 
-    with open(CACHE_FILE, "w", encoding="utf-8") as f:
-        json.dump(cache, f, indent=2)
+        save_json(cache, CACHE_FILE, format_prettier=True)
 
-    return subproblems, edg_fes
+        return subproblems, edg_fes
+    finally:
+        cleanup_benchmark_csv()
 
 
 def precompute_all(functions=range(1, 12)):
     print("Precomputing EDG decomposition for CEC2013 functions...")
-    for fid in functions:
-        get_or_compute_edg_subproblems(fid)
-    print(f"All EDG decompositions cached in: {CACHE_FILE}")
+    try:
+        for fid in functions:
+            get_or_compute_edg_subproblems(fid)
+        print(f"All EDG decompositions cached in: {CACHE_FILE}")
+    finally:
+        cleanup_benchmark_csv()
 
 
 if __name__ == "__main__":

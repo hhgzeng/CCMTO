@@ -6,7 +6,6 @@ Saves optimization progress and final results into the results/ folder.
 """
 
 import argparse
-import json
 import os
 import sys
 import time
@@ -18,6 +17,10 @@ import numpy as np
 from cec2013lsgo.cec2013 import Benchmark
 
 from src.CCMTO.CCMTO import CCMTO
+from src.utils import cleanup_benchmark_csv, register_csv_cleanup, save_json
+
+# Ensure cleanup on process exit
+register_csv_cleanup()
 
 
 def parse_d_max(d_max_val: str) -> float:
@@ -73,77 +76,80 @@ def run_cec2013_experiment(
     )
     print("=" * 70)
 
-    from decomposition.precompute_edg import get_or_compute_edg_subproblems
-    subproblems_cached, _ = get_or_compute_edg_subproblems(func_id)
+    try:
+        from decomposition.precompute_edg import get_or_compute_edg_subproblems
 
-    start_time = time.time()
+        subproblems_cached, _ = get_or_compute_edg_subproblems(func_id)
 
-    solver = CCMTO(
-        func=func,
-        dim=dim,
-        lower=lower,
-        upper=upper,
-        max_fes=max_fes,
-        n_sub=n_sub,
-        d_max=d_max_parsed,
-        tau=tau,
-        fre_ratio=fre_ratio,
-        custom_subproblems=subproblems_cached,
-        verbose=True,
-        log_interval=log_interval,
-    )
+        start_time = time.time()
 
-    result = solver.optimize()
-    elapsed_time = time.time() - start_time
+        solver = CCMTO(
+            func=func,
+            dim=dim,
+            lower=lower,
+            upper=upper,
+            max_fes=max_fes,
+            n_sub=n_sub,
+            d_max=d_max_parsed,
+            tau=tau,
+            fre_ratio=fre_ratio,
+            custom_subproblems=subproblems_cached,
+            verbose=True,
+            log_interval=log_interval,
+        )
 
-    best_f = result["best_f"]
-    error = abs(best_f - best_known)
-    total_fes = result["fes"]
-    history = result["history"]
-    subproblems = result["subproblems"]
-    mtops = result["mtops"]
+        result = solver.optimize()
+        elapsed_time = time.time() - start_time
 
-    print("\n" + "=" * 70)
-    print(f"Optimization Finished for CEC2013 F{func_id}!")
-    print(f"Elapsed Time: {elapsed_time:.2f} s")
-    print(f"Total FEs: {total_fes:,}")
-    print(f"Best Fitness: {best_f:.6e}")
-    print(f"Error to Best: {error:.6e}")
-    print(f"Decomposed Subproblems: {len(subproblems)}")
-    print(f"Constructed MTOPs: {len(mtops)}")
-    print("=" * 70)
+        best_f = result["best_f"]
+        error = abs(best_f - best_known)
+        total_fes = result["fes"]
+        history = result["history"]
+        subproblems = result["subproblems"]
+        mtops = result["mtops"]
 
-    # Convert results to serializable format
-    res_data = {
-        "benchmark": "CEC2013 LSGO",
-        "func_id": func_id,
-        "dimension": dim,
-        "max_fes": max_fes,
-        "parameters": {
-            "n_sub": n_sub,
-            "d_max": str(d_max),
-            "tau": tau,
-            "fre": str(fre),
-        },
-        "seed": seed,
-        "elapsed_seconds": elapsed_time,
-        "total_fes": total_fes,
-        "best_fitness": best_f,
-        "best_known": best_known,
-        "error": error,
-        "num_subproblems": len(subproblems),
-        "subproblem_sizes": [len(s) for s in subproblems],
-        "num_mtops": len(mtops),
-        "mtop_task_counts": [len(m) for m in mtops],
-        "history": history,
-    }
+        print("\n" + "=" * 70)
+        print(f"Optimization Finished for CEC2013 F{func_id}!")
+        print(f"Elapsed Time: {elapsed_time:.2f} s")
+        print(f"Total FEs: {total_fes:,}")
+        print(f"Best Fitness: {best_f:.6e}")
+        print(f"Error to Best: {error:.6e}")
+        print(f"Decomposed Subproblems: {len(subproblems)}")
+        print(f"Constructed MTOPs: {len(mtops)}")
+        print("=" * 70)
 
-    out_path = os.path.join(output_dir, f"cec2013_f{func_id}_result.json")
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(res_data, f, indent=2)
+        # Convert results to serializable format
+        res_data = {
+            "benchmark": "CEC2013 LSGO",
+            "func_id": func_id,
+            "dimension": dim,
+            "max_fes": max_fes,
+            "parameters": {
+                "n_sub": n_sub,
+                "d_max": str(d_max),
+                "tau": tau,
+                "fre": str(fre),
+            },
+            "seed": seed,
+            "elapsed_seconds": elapsed_time,
+            "total_fes": total_fes,
+            "best_fitness": best_f,
+            "best_known": best_known,
+            "error": error,
+            "num_subproblems": len(subproblems),
+            "subproblem_sizes": [len(s) for s in subproblems],
+            "num_mtops": len(mtops),
+            "mtop_task_counts": [len(m) for m in mtops],
+            "history": history,
+        }
 
-    print(f"Results successfully saved to: {out_path}")
-    return res_data
+        out_path = os.path.join(output_dir, f"cec2013_f{func_id}_result.json")
+        save_json(res_data, out_path, format_prettier=True)
+
+        print(f"Results successfully saved to: {out_path}")
+        return res_data
+    finally:
+        cleanup_benchmark_csv()
 
 
 if __name__ == "__main__":
@@ -185,14 +191,17 @@ if __name__ == "__main__":
     parser.add_argument("--output_dir", type=str, default="results", help="Output directory")
 
     args = parser.parse_args()
-    run_cec2013_experiment(
-        func_id=args.func,
-        max_fes=args.max_fes,
-        n_sub=args.n_sub,
-        d_max=args.d_max,
-        tau=args.tau,
-        fre=args.fre,
-        seed=args.seed,
-        output_dir=args.output_dir,
-        log_interval=args.log_interval,
-    )
+    try:
+        run_cec2013_experiment(
+            func_id=args.func,
+            max_fes=args.max_fes,
+            n_sub=args.n_sub,
+            d_max=args.d_max,
+            tau=args.tau,
+            fre=args.fre,
+            seed=args.seed,
+            output_dir=args.output_dir,
+            log_interval=args.log_interval,
+        )
+    finally:
+        cleanup_benchmark_csv()

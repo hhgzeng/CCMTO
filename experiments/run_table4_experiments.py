@@ -23,7 +23,6 @@ Supports multi-process parallelism for fast execution.
 import argparse
 import json
 import os
-import shutil
 import sys
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -41,6 +40,9 @@ from src.CCMTO.CCMTO import CCMTO
 from baselines.resource_allocation import CBCC1, CCFR3
 from baselines.emto_algorithms import CCMTO_MaTDE
 from baselines.component_ablation import WO_DA, WO_DT_DoS, WO_AS_SaS, WO_SD
+from src.utils import cleanup_benchmark_csv, register_csv_cleanup, save_json
+
+register_csv_cleanup()
 
 
 # Selected benchmark functions (F1, F2, F4, F5, F9)
@@ -67,7 +69,7 @@ MODULE_ALGORITHMS = {
 }
 
 
-def create_solver(
+def create_module_solver(
     algo_name: str,
     algo_cls: Any,
     func,
@@ -77,18 +79,31 @@ def create_solver(
     max_fes: int,
     subproblems: Optional[List[List[int]]] = None,
 ):
-    """Instantiate optimizer solver instance with standardized parameters."""
-    return algo_cls(
-        func=func,
-        dim=dim,
-        lower=lower,
-        upper=upper,
-        max_fes=max_fes,
-        n_sub=5,
-        d_max=2.0,
-        custom_subproblems=subproblems,
-        verbose=False,
-    )
+    """Instantiate optimizer for specific Table IV ablation modules."""
+    if algo_name == "CCMTO-MTES-DAKG":
+        return CCMTO(
+            func=func,
+            dim=dim,
+            lower=lower,
+            upper=upper,
+            max_fes=max_fes,
+            n_sub=5,
+            d_max=2.0,
+            tau=1,
+            fre_ratio=0.1,
+            custom_subproblems=subproblems,
+            verbose=False,
+        )
+    else:
+        return algo_cls(
+            func=func,
+            dim=dim,
+            lower=lower,
+            upper=upper,
+            max_fes=max_fes,
+            custom_subproblems=subproblems,
+            verbose=False,
+        )
 
 
 def run_single_run(
@@ -100,7 +115,7 @@ def run_single_run(
     max_fes: int,
     subproblems: Optional[List[List[int]]] = None,
 ) -> Dict[str, Any]:
-    """Execute a single run of an algorithm on a benchmark function."""
+    """Execute a single Monte Carlo run of a specified ablation algorithm."""
     np.random.seed(seed)
     bench = Benchmark()
     info = bench.get_info(func_id)
@@ -111,34 +126,47 @@ def run_single_run(
     upper = info["upper"]
     best_known = info["best"]
 
-    start_time = time.time()
-    solver = create_solver(algo_name, algo_cls, func, dim, lower, upper, max_fes, subproblems)
-    result = solver.optimize()
-    elapsed_time = time.time() - start_time
+    try:
+        start_time = time.time()
+        solver = create_module_solver(
+            algo_name=algo_name,
+            algo_cls=algo_cls,
+            func=func,
+            dim=dim,
+            lower=lower,
+            upper=upper,
+            max_fes=max_fes,
+            subproblems=subproblems,
+        )
+        result = solver.optimize()
+        elapsed_time = time.time() - start_time
 
-    best_f = float(result["best_f"])
-    error = float(abs(best_f - best_known))
-    total_fes = int(result["fes"])
+        best_f = float(result["best_f"])
+        error = float(abs(best_f - best_known))
+        total_fes = int(result["fes"])
 
-    full_history = result.get("history", [])
-    if len(full_history) > 100:
-        step = max(1, len(full_history) // 100)
-        sampled_history = [full_history[i] for i in range(0, len(full_history), step)]
-        if sampled_history[-1] != full_history[-1]:
-            sampled_history.append(full_history[-1])
-    else:
-        sampled_history = full_history
+        # Sample history for compact JSON
+        full_history = result.get("history", [])
+        if len(full_history) > 100:
+            step = max(1, len(full_history) // 100)
+            sampled_history = [full_history[i] for i in range(0, len(full_history), step)]
+            if sampled_history[-1] != full_history[-1]:
+                sampled_history.append(full_history[-1])
+        else:
+            sampled_history = full_history
 
-    return {
-        "run_idx": run_idx,
-        "seed": seed,
-        "best_fitness": best_f,
-        "best_known": best_known,
-        "error": error,
-        "total_fes": total_fes,
-        "elapsed_seconds": elapsed_time,
-        "history": sampled_history,
-    }
+        return {
+            "run_idx": run_idx,
+            "seed": seed,
+            "best_fitness": best_f,
+            "best_known": best_known,
+            "error": error,
+            "total_fes": total_fes,
+            "elapsed_seconds": elapsed_time,
+            "history": sampled_history,
+        }
+    finally:
+        cleanup_benchmark_csv()
 
 
 def run_module_algorithm(
@@ -152,38 +180,46 @@ def run_module_algorithm(
     num_workers: int = 5,
     output_base_dir: str = "results/TABLE IV",
 ):
-    """Run all benchmark functions for a specific algorithm within a module."""
-    algo_dir = os.path.join(output_base_dir, module_name, algo_name)
-    os.makedirs(algo_dir, exist_ok=True)
+    """Run all benchmarks for a specific algorithm in a Table IV module."""
+    target_dir = os.path.join(output_base_dir, module_name, algo_name)
+    os.makedirs(target_dir, exist_ok=True)
 
     print(f"\n======================================================================")
-    print(f"Running [{module_name.upper()}] Algorithm: [{algo_name}]")
+    print(f"Running Table IV: Module [{module_name}] | Algorithm [{algo_name}]")
     print(f"Functions ({len(functions)}): {functions} | Runs: {num_runs} | MaxFEs: {max_fes:,}")
-    print(f"Target Directory: {algo_dir}")
+    print(f"Target Directory: {target_dir}")
     print(f"======================================================================")
 
+    # Precompute/load EDG subproblem decompositions
+    subproblems_map = {}
     for fid in functions:
-        json_path = os.path.join(algo_dir, f"cec2013_f{fid}.json")
+        subproblems_map[fid], _ = get_or_compute_edg_subproblems(fid)
 
+    for fid in functions:
+        json_path = os.path.join(target_dir, f"cec2013_f{fid}.json")
+
+        # Checkpoint: skip if already completed
         if os.path.exists(json_path):
             try:
                 with open(json_path, "r", encoding="utf-8") as f:
                     existing = json.load(f)
-                if (
-                    len(existing.get("runs", [])) >= num_runs
-                    and existing.get("max_fes") == max_fes
-                    and not np.isinf(existing.get("mean_error", float("inf")))
-                ):
-                    print(f"  [Skipping] [{algo_name}] F{fid} already completed ({num_runs} runs).")
+                if len(existing.get("runs", [])) >= num_runs and existing.get("max_fes") == max_fes:
+                    print(f"  [Skipping] F{fid} already completed ({num_runs} runs with MaxFEs={max_fes:,}).")
                     continue
             except Exception:
                 pass
 
-        print(f"\n>>> [{algo_name}] Executing CEC2013 F{fid} ({num_runs} runs, MaxFEs={max_fes:,})...")
-        subproblems, _ = get_or_compute_edg_subproblems(fid)
-
+        print(f"\n>>> [{module_name} | {algo_name}] Executing CEC2013 F{fid} ({num_runs} runs)...")
         tasks = [
-            (algo_name, algo_cls, fid, r + 1, base_seed + r * 100 + fid, max_fes, subproblems)
+            (
+                algo_name,
+                algo_cls,
+                fid,
+                r + 1,
+                base_seed + r * 1000 + fid * 10,
+                max_fes,
+                subproblems_map[fid],
+            )
             for r in range(num_runs)
         ]
 
@@ -205,6 +241,8 @@ def run_module_algorithm(
                         )
                     except Exception as e:
                         print(f"    [ERROR in Run {run_idx}]: {e}")
+                    finally:
+                        cleanup_benchmark_csv()
         else:
             for task in tasks:
                 res = run_single_run(*task)
@@ -213,6 +251,7 @@ def run_module_algorithm(
                     f"    [{algo_name} | F{fid} | Run {res['run_idx']:2d}/{num_runs}] "
                     f"Error: {res['error']:.6e} | Time: {res['elapsed_seconds']:.2f}s | FEs: {res['total_fes']:,}"
                 )
+                cleanup_benchmark_csv()
 
         runs_data.sort(key=lambda x: x["run_idx"])
 
@@ -243,12 +282,13 @@ def run_module_algorithm(
             "runs": runs_data,
         }
 
-        with open(json_path, "w", encoding="utf-8") as f:
-            json.dump(summary_data, f, indent=2)
+        save_json(summary_data, json_path, format_prettier=True)
 
         print(
             f"  [{algo_name} | F{fid} COMPLETED] Mean Error: {summary_data['mean_error']:.6e} ± {summary_data['std_error']:.6e} -> {json_path}"
         )
+
+    cleanup_benchmark_csv()
 
 
 def sync_proposed_baseline(output_base_dir: str, num_runs: int, max_fes: int, functions: List[int]):
@@ -272,8 +312,7 @@ def sync_proposed_baseline(output_base_dir: str, num_runs: int, max_fes: int, fu
                     with open(src_file, "r", encoding="utf-8") as f:
                         data = json.load(f)
                     data["module"] = tgt_mod
-                    with open(dst_file, "w", encoding="utf-8") as f:
-                        json.dump(data, f, indent=2)
+                    save_json(data, dst_file, format_prettier=True)
                 except Exception as e:
                     print(f"Warning syncing baseline to {dst_file}: {e}")
 
@@ -337,47 +376,50 @@ def main():
     print(f"Output Directory: {args.output_dir}")
     print("=" * 80)
 
-    # First, run baseline CCMTO-MTES-DAKG in resource_allocation if requested
-    if "resource_allocation" in args.modules and (args.algorithms is None or "CCMTO-MTES-DAKG" in args.algorithms):
-        run_module_algorithm(
-            module_name="resource_allocation",
-            algo_name="CCMTO-MTES-DAKG",
-            algo_cls=CCMTO,
-            functions=args.functions,
-            num_runs=args.num_runs,
-            max_fes=args.max_fes,
-            num_workers=args.workers,
-            output_base_dir=args.output_dir,
-        )
-        sync_proposed_baseline(args.output_dir, args.num_runs, args.max_fes, args.functions)
-
-    for mod_name in args.modules:
-        algos_dict = MODULE_ALGORITHMS[mod_name]
-        for algo_name, algo_cls in algos_dict.items():
-            if args.algorithms is not None and algo_name not in args.algorithms:
-                continue
-
-            if algo_name == "CCMTO-MTES-DAKG" and mod_name == "resource_allocation":
-                continue  # already ran above
-
+    try:
+        # First, run baseline CCMTO-MTES-DAKG in resource_allocation if requested
+        if "resource_allocation" in args.modules and (args.algorithms is None or "CCMTO-MTES-DAKG" in args.algorithms):
             run_module_algorithm(
-                module_name=mod_name,
-                algo_name=algo_name,
-                algo_cls=algo_cls,
+                module_name="resource_allocation",
+                algo_name="CCMTO-MTES-DAKG",
+                algo_cls=CCMTO,
                 functions=args.functions,
                 num_runs=args.num_runs,
                 max_fes=args.max_fes,
                 num_workers=args.workers,
                 output_base_dir=args.output_dir,
             )
-            if algo_name == "CCMTO-MTES-DAKG":
-                sync_proposed_baseline(args.output_dir, args.num_runs, args.max_fes, args.functions)
+            sync_proposed_baseline(args.output_dir, args.num_runs, args.max_fes, args.functions)
 
-    sync_proposed_baseline(args.output_dir, args.num_runs, args.max_fes, args.functions)
+        for mod_name in args.modules:
+            algos_dict = MODULE_ALGORITHMS[mod_name]
+            for algo_name, algo_cls in algos_dict.items():
+                if args.algorithms is not None and algo_name not in args.algorithms:
+                    continue
 
-    print("\n" + "=" * 80)
-    print("ALL TABLE IV EXPERIMENTS COMPLETED SUCCESSFULLY!")
-    print("=" * 80)
+                if algo_name == "CCMTO-MTES-DAKG" and mod_name == "resource_allocation":
+                    continue  # already ran above
+
+                run_module_algorithm(
+                    module_name=mod_name,
+                    algo_name=algo_name,
+                    algo_cls=algo_cls,
+                    functions=args.functions,
+                    num_runs=args.num_runs,
+                    max_fes=args.max_fes,
+                    num_workers=args.workers,
+                    output_base_dir=args.output_dir,
+                )
+                if algo_name == "CCMTO-MTES-DAKG":
+                    sync_proposed_baseline(args.output_dir, args.num_runs, args.max_fes, args.functions)
+
+        sync_proposed_baseline(args.output_dir, args.num_runs, args.max_fes, args.functions)
+
+        print("\n" + "=" * 80)
+        print("ALL TABLE IV EXPERIMENTS COMPLETED SUCCESSFULLY!")
+        print("=" * 80)
+    finally:
+        cleanup_benchmark_csv()
 
 
 if __name__ == "__main__":

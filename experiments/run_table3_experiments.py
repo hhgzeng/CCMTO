@@ -15,11 +15,10 @@ Supports multi-process parallelism for fast execution.
 import argparse
 import json
 import os
-import shutil
 import sys
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import numpy as np
 
@@ -28,6 +27,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from cec2013lsgo.cec2013 import Benchmark
 from src.CCMTO.CCMTO import CCMTO
+from src.utils import cleanup_benchmark_csv, register_csv_cleanup, save_json
+
+register_csv_cleanup()
 
 
 # Default baseline parameters (Setting with best performance in Table I & Table III)
@@ -89,46 +91,49 @@ def run_single_run(
     upper = info["upper"]
     best_known = info["best"]
 
-    start_time = time.time()
-    solver = CCMTO(
-        func=func,
-        dim=dim,
-        lower=lower,
-        upper=upper,
-        max_fes=max_fes,
-        n_sub=n_sub,
-        d_max=d_max,
-        tau=tau,
-        fre_ratio=fre_ratio,
-        verbose=False,
-    )
-    result = solver.optimize()
-    elapsed_time = time.time() - start_time
+    try:
+        start_time = time.time()
+        solver = CCMTO(
+            func=func,
+            dim=dim,
+            lower=lower,
+            upper=upper,
+            max_fes=max_fes,
+            n_sub=n_sub,
+            d_max=d_max,
+            tau=tau,
+            fre_ratio=fre_ratio,
+            verbose=False,
+        )
+        result = solver.optimize()
+        elapsed_time = time.time() - start_time
 
-    best_f = float(result["best_f"])
-    error = float(abs(best_f - best_known))
-    total_fes = int(result["fes"])
+        best_f = float(result["best_f"])
+        error = float(abs(best_f - best_known))
+        total_fes = int(result["fes"])
 
-    # Sample history to keep json lightweight (max 100 points)
-    full_history = result.get("history", [])
-    if len(full_history) > 100:
-        step = max(1, len(full_history) // 100)
-        sampled_history = [full_history[i] for i in range(0, len(full_history), step)]
-        if sampled_history[-1] != full_history[-1]:
-            sampled_history.append(full_history[-1])
-    else:
-        sampled_history = full_history
+        # Sample history to keep json lightweight (max 100 points)
+        full_history = result.get("history", [])
+        if len(full_history) > 100:
+            step = max(1, len(full_history) // 100)
+            sampled_history = [full_history[i] for i in range(0, len(full_history), step)]
+            if sampled_history[-1] != full_history[-1]:
+                sampled_history.append(full_history[-1])
+        else:
+            sampled_history = full_history
 
-    return {
-        "run_idx": run_idx,
-        "seed": seed,
-        "best_fitness": best_f,
-        "best_known": best_known,
-        "error": error,
-        "total_fes": total_fes,
-        "elapsed_seconds": elapsed_time,
-        "history": sampled_history,
-    }
+        return {
+            "run_idx": run_idx,
+            "seed": seed,
+            "best_fitness": best_f,
+            "best_known": best_known,
+            "error": error,
+            "total_fes": total_fes,
+            "elapsed_seconds": elapsed_time,
+            "history": sampled_history,
+        }
+    finally:
+        cleanup_benchmark_csv()
 
 
 def run_parameter_experiments(
@@ -206,6 +211,8 @@ def run_parameter_experiments(
                         )
                     except Exception as e:
                         print(f"    [ERROR in Run {run_idx}]: {e}")
+                    finally:
+                        cleanup_benchmark_csv()
         else:
             for task in tasks:
                 res = run_single_run(*task)
@@ -214,6 +221,7 @@ def run_parameter_experiments(
                     f"    [Run {res['run_idx']:2d}/{num_runs}] "
                     f"Error: {res['error']:.6e} | Time: {res['elapsed_seconds']:.2f}s | FEs: {res['total_fes']:,}"
                 )
+                cleanup_benchmark_csv()
 
         runs_data.sort(key=lambda x: x["run_idx"])
 
@@ -244,12 +252,13 @@ def run_parameter_experiments(
             "runs": runs_data,
         }
 
-        with open(json_path, "w", encoding="utf-8") as f:
-            json.dump(summary_data, f, indent=2)
+        save_json(summary_data, json_path, format_prettier=True)
 
         print(
             f"  [Completed F{fid}] Mean Error: {summary_data['mean_error']:.6e} ± {summary_data['std_error']:.6e} -> {json_path}"
         )
+
+    cleanup_benchmark_csv()
 
 
 def sync_baseline_results(output_dir: str, num_runs: int, max_fes: int):
@@ -272,8 +281,7 @@ def sync_baseline_results(output_dir: str, num_runs: int, max_fes: int):
                         data = json.load(f)
                     data["parameter"] = "d_max"
                     data["setting"] = "2"
-                    with open(dst_file, "w", encoding="utf-8") as f:
-                        json.dump(data, f, indent=2)
+                    save_json(data, dst_file, format_prettier=True)
                 except Exception as e:
                     print(f"Warning syncing baseline to {dst_file}: {e}")
 
@@ -289,8 +297,7 @@ def sync_baseline_results(output_dir: str, num_runs: int, max_fes: int):
                         data = json.load(f)
                     data["parameter"] = "n_sub"
                     data["setting"] = "5"
-                    with open(dst_file, "w", encoding="utf-8") as f:
-                        json.dump(data, f, indent=2)
+                    save_json(data, dst_file, format_prettier=True)
                 except Exception as e:
                     print(f"Warning syncing baseline to {dst_file}: {e}")
 
@@ -346,41 +353,44 @@ def main():
     print(f"Output Directory: {args.output_dir}")
     print("=" * 80)
 
-    # First, run baseline (n_sub=5)
-    if "n_sub" in args.parameters:
-        run_parameter_experiments(
-            param_name="n_sub",
-            setting_val=5,
-            functions=args.functions,
-            num_runs=args.num_runs,
-            max_fes=args.max_fes,
-            num_workers=args.workers,
-            output_dir=args.output_dir,
-        )
-        sync_baseline_results(args.output_dir, args.num_runs, args.max_fes)
-
-    # Run remaining settings for all selected parameters
-    for param in args.parameters:
-        cfg = PARAMETER_CONFIGS[param]
-        for setting in cfg["settings"]:
-            if param == "n_sub" and setting == 5:
-                continue  # already ran above
-
+    try:
+        # First, run baseline (n_sub=5)
+        if "n_sub" in args.parameters:
             run_parameter_experiments(
-                param_name=param,
-                setting_val=setting,
+                param_name="n_sub",
+                setting_val=5,
                 functions=args.functions,
                 num_runs=args.num_runs,
                 max_fes=args.max_fes,
                 num_workers=args.workers,
                 output_dir=args.output_dir,
             )
-            # Sync baseline if setting is the default
             sync_baseline_results(args.output_dir, args.num_runs, args.max_fes)
 
-    print("\n" + "=" * 80)
-    print("ALL TABLE III EXPERIMENTS COMPLETED SUCCESSFULLY!")
-    print("=" * 80)
+        # Run remaining settings for all selected parameters
+        for param in args.parameters:
+            cfg = PARAMETER_CONFIGS[param]
+            for setting in cfg["settings"]:
+                if param == "n_sub" and setting == 5:
+                    continue  # already ran above
+
+                run_parameter_experiments(
+                    param_name=param,
+                    setting_val=setting,
+                    functions=args.functions,
+                    num_runs=args.num_runs,
+                    max_fes=args.max_fes,
+                    num_workers=args.workers,
+                    output_dir=args.output_dir,
+                )
+                # Sync baseline if setting is the default
+                sync_baseline_results(args.output_dir, args.num_runs, args.max_fes)
+
+        print("\n" + "=" * 80)
+        print("ALL TABLE III EXPERIMENTS COMPLETED SUCCESSFULLY!")
+        print("=" * 80)
+    finally:
+        cleanup_benchmark_csv()
 
 
 if __name__ == "__main__":

@@ -17,6 +17,9 @@ from baselines.cmaes_edg import CMAES_EDG
 from baselines.decc_erdg import DECC_ERDG
 from baselines.gtde import GTDE
 from baselines.sdlso import SDLSO
+from src.utils import cleanup_benchmark_csv, register_csv_cleanup
+
+register_csv_cleanup()
 
 
 def test_sphere_convergence():
@@ -59,34 +62,49 @@ def test_gtde_mechanisms():
     lower = -10.0
     upper = 10.0
 
-    def rosenbrock(x):
-        return float(np.sum(100.0 * (x[1:] - x[:-1]**2)**2 + (1.0 - x[:-1])**2))
+    def rastrigin(x):
+        return float(10 * len(x) + np.sum(x ** 2 - 10 * np.cos(2 * np.pi * x)))
 
-    gtde = GTDE(rosenbrock, dim, lower, upper, max_fes=5000, pop_size=30, target_group_size=5)
+    gtde = GTDE(
+        func=rastrigin,
+        dim=dim,
+        lower=lower,
+        upper=upper,
+        max_fes=10000,
+        pop_size=30,
+        target_group_size=10,
+    )
     res = gtde.optimize()
 
-    assert res["fes"] >= 5000
+    assert res["fes"] >= 10000
     assert np.isfinite(res["best_f"])
-    print(f"  GTDE Rosenbrock 50D: Best = {res['best_f']:.4e}, FEs = {res['fes']:,} -> PASS")
+    print(f"  GTDE Rastrigin 50D: Best = {res['best_f']:.4e}, FEs = {res['fes']:,} -> PASS")
 
 
 def test_sdlso_mechanisms():
-    """Verify SDLSO specific mechanisms: pairwise competition and dominance check."""
+    """Verify SDLSO specific mechanisms: small-world lattice topology + dynamic social learn."""
     print("\n" + "=" * 60)
     print("3. Testing SDLSO Specific Mechanisms (Yang et al., 2022)")
     print("=" * 60)
 
     dim = 50
-    lower = -10.0
-    upper = 10.0
+    lower = -32.0
+    upper = 32.0
 
     def ackley(x):
-        n = len(x)
-        sum_sq = np.sum(x**2)
+        d = len(x)
+        sum_sq = np.sum(x ** 2)
         sum_cos = np.sum(np.cos(2 * np.pi * x))
-        return float(-20.0 * np.exp(-0.2 * np.sqrt(sum_sq / n)) - np.exp(sum_cos / n) + 20.0 + np.e)
+        return float(-20.0 * np.exp(-0.2 * np.sqrt(sum_sq / d)) - np.exp(sum_cos / d) + 20 + np.e)
 
-    sdlso = SDLSO(ackley, dim, lower, upper, max_fes=5000, pop_size=40)
+    sdlso = SDLSO(
+        func=ackley,
+        dim=dim,
+        lower=lower,
+        upper=upper,
+        max_fes=5000,
+        pop_size=20,
+    )
     res = sdlso.optimize()
 
     assert res["fes"] >= 5000
@@ -121,8 +139,11 @@ def test_cec2013_smoke():
 
 
 if __name__ == "__main__":
-    test_sphere_convergence()
-    test_gtde_mechanisms()
-    test_sdlso_mechanisms()
-    test_cec2013_smoke()
-    print("\nAll verification tests PASSED successfully!")
+    try:
+        test_sphere_convergence()
+        test_gtde_mechanisms()
+        test_sdlso_mechanisms()
+        test_cec2013_smoke()
+        print("\nAll verification tests PASSED successfully!")
+    finally:
+        cleanup_benchmark_csv()
