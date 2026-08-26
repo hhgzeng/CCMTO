@@ -15,11 +15,12 @@ import sys
 from typing import Dict, List, Optional, Tuple
 
 import matplotlib
+
 matplotlib.use("Agg")  # Non-interactive backend
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.stats import rankdata, ranksums, mannwhitneyu
+from scipy.stats import mannwhitneyu, rankdata, ranksums
 
 # Set matplotlib style
 plt.style.use("seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default")
@@ -235,10 +236,7 @@ def generate_table2_markdown(
                 m = subset.iloc[0]["Mean Error"]
                 s = subset.iloc[0]["Std Error"]
                 outcome = subset.iloc[0]["Wilcoxon Outcome"]
-                if algo == "CCMTO-MTES-DAKG":
-                    val_str = f"{m:.2e} ± {s:.2e}"
-                else:
-                    val_str = f"{m:.2e} ± {s:.2e} ({outcome})"
+                val_str = f"{m:.2e}±{s:.2e}"
             else:
                 val_str = "N/A"
             row_str += f" {val_str} |"

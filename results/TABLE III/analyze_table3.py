@@ -17,6 +17,7 @@ import sys
 from typing import Any, Dict, List, Optional, Tuple
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
@@ -278,11 +279,7 @@ def generate_table3_markdown(
                 if not subset.empty:
                     m = subset.iloc[0]["Mean Error"]
                     sd = subset.iloc[0]["Std Error"]
-                    out = subset.iloc[0]["Outcome vs Baseline"]
-                    if s == baseline:
-                        val_str = f"{m:.2e} ± {sd:.2e}"
-                    else:
-                        val_str = f"{m:.2e} ± {sd:.2e} ({out})"
+                    val_str = f"{m:.2e}±{sd:.2e}"
                 else:
                     val_str = "N/A"
                 row_str += f" {val_str} |"
