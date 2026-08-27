@@ -6,7 +6,7 @@ Dynamically allocates computational resources to MTOPs with the highest fitness 
 while pruning stagnant subtasks to conserve function evaluations.
 """
 
-from typing import Callable, Dict, List, Optional, Set, Tuple
+from typing import Callable, List, Optional, Set, Tuple, Union
 import numpy as np
 
 from .StagnantDetection import StagnantDetection
@@ -19,8 +19,8 @@ class ResourceAllocation:
         mtops: List[List[List[int]]],
         eval_func: Callable[[np.ndarray], float],
         dim: int,
-        lower: float = -100.0,
-        upper: float = 100.0,
+        lower: Union[float, np.ndarray] = -100.0,
+        upper: Union[float, np.ndarray] = 100.0,
         max_gen: int = 50,
         epsilon: float = 1e-6,
         alpha: float = 0.5,
@@ -74,7 +74,8 @@ class ResourceAllocation:
             self.optimizers.append(opt)
 
             detectors = [
-                StagnantDetection(dim=len(sub), epsilon=self.epsilon) for sub in mtop_subs
+                StagnantDetection(dim=len(sub), epsilon=self.epsilon)
+                for sub in mtop_subs
             ]
             self.stagnant_detectors.append(detectors)
             self.stagnant_sets.append(set())

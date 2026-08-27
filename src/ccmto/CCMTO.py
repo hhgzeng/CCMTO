@@ -109,7 +109,9 @@ class CCMTO:
                 print(f"[CCMTO] Using {len(subproblems)} provided subproblems.")
         else:
             if self.verbose:
-                print(f"[CCMTO] Starting EDG decomposition for {self.dim}-dimensional problem...")
+                print(
+                    f"[CCMTO] Starting EDG decomposition for {self.dim}-dimensional problem..."
+                )
             edg_solver = EDG(
                 func=self._eval,
                 dim=self.dim,
@@ -130,8 +132,16 @@ class CCMTO:
             print(f"[CCMTO] MTOP construction produced {len(mtops)} MTOPs.")
 
         # 3. Initialize global best solution
-        low = np.full(self.dim, self.lower) if np.isscalar(self.lower) else np.asarray(self.lower)
-        high = np.full(self.dim, self.upper) if np.isscalar(self.upper) else np.asarray(self.upper)
+        low = (
+            np.full(self.dim, self.lower)
+            if np.isscalar(self.lower)
+            else np.asarray(self.lower)
+        )
+        high = (
+            np.full(self.dim, self.upper)
+            if np.isscalar(self.upper)
+            else np.asarray(self.upper)
+        )
         init_x = np.random.uniform(low, high, self.dim)
         init_f = self._eval(init_x)
         self.best_x = init_x.copy()
@@ -143,8 +153,8 @@ class CCMTO:
             mtops=mtops,
             eval_func=self._eval,
             dim=self.dim,
-            lower=self.lower,
-            upper=self.upper,
+            lower=low,
+            upper=high,
             max_gen=self.max_gen_per_cycle,
             epsilon=self.epsilon,
             alpha=self.alpha,
@@ -173,7 +183,9 @@ class CCMTO:
                 )
                 self.history.append((self.fe_counter[0], self.best_f))
 
-                if self.verbose and (self.fe_counter[0] - last_logged_fe >= self.log_interval):
+                if self.verbose and (
+                    self.fe_counter[0] - last_logged_fe >= self.log_interval
+                ):
                     print(
                         f"[Cycle {coevo_cycle} - Phase 1] FEs: {self.fe_counter[0]:,}/{self.max_fes:,} | Best Fitness: {self.best_f:.6e}"
                     )
@@ -181,9 +193,9 @@ class CCMTO:
 
             # Phase 2: Greedy selection based on contributions
             while (
-                (np.max(allocator.contributions) - np.min(allocator.contributions) > self.epsilon)
-                and self.fe_counter[0] < self.max_fes
-            ):
+                np.max(allocator.contributions) - np.min(allocator.contributions)
+                > self.epsilon
+            ) and self.fe_counter[0] < self.max_fes:
                 best_mtop_idx = int(np.argmax(allocator.contributions))
                 self.best_x, self.best_f = allocator.optimize_mtop(
                     mtop_idx=best_mtop_idx,
@@ -194,7 +206,9 @@ class CCMTO:
                 )
                 self.history.append((self.fe_counter[0], self.best_f))
 
-                if self.verbose and (self.fe_counter[0] - last_logged_fe >= self.log_interval):
+                if self.verbose and (
+                    self.fe_counter[0] - last_logged_fe >= self.log_interval
+                ):
                     print(
                         f"[Cycle {coevo_cycle} - Phase 2] FEs: {self.fe_counter[0]:,}/{self.max_fes:,} | Best Fitness: {self.best_f:.6e}"
                     )
