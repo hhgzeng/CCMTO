@@ -84,13 +84,13 @@ CCMTO/
 ## 🛠️ 模块说明
 
 1. **核心算法 (`src/`)**
-    - **`CCMTO`**: 协同多任务优化框架，将 LSOP 分解后的子问题转化为多任务优化问题（MTOPs），并利用贡献度动态分配计算资源与检测停滞。
-    - **`MTES_DAKG`**: 基于知识迁移的演化策略求解器，包含方向迁移（DT-DoS）与自适应步长迁移（AS-SaS），有效利用不同子任务间的相似性与互补性。
+   - **`CCMTO`**: 协同多任务优化框架，将 LSOP 分解后的子问题转化为多任务优化问题（MTOPs），并利用贡献度动态分配计算资源与检测停滞。
+   - **`MTES_DAKG`**: 基于知识迁移的演化策略求解器，包含方向迁移（DT-DoS）与自适应步长迁移（AS-SaS），有效利用不同子任务间的相似性与互补性。
 2. **问题分解 (`decomposition/`)**
-    - 实现 **EDG** (Efficient Distance-based Grouping) 与 **ERDG** 分组算法，支持离线预计算与缓存加速。
+   - 实现 **EDG** (Efficient Distance-based Grouping) 与 **ERDG** 分组算法，支持离线预计算与缓存加速。
 3. **基准测试集 (`benchmarks/`)**
-    - 适配 IEEE CEC'2013 Large-Scale Global Optimization (LSGO) 15 个基准测试函数（1000 维）。
+   - 适配 IEEE CEC'2013 Large-Scale Global Optimization (LSGO) 15 个基准测试函数（1000 维）。
 4. **基线与消融 (`baselines/`)**
-    - 包含经典 LSGO 算法（GTDE、SDLSO、CMAES-EDG、DECC-ERDG）、多任务演化算法（G-MFEA、MATDE、MTEA-AD）、经典资源分配机制（CBCC、CCFR）以及各组件消融变体。
+   - 包含经典 LSGO 算法（GTDE、SDLSO、CMAES-EDG、DECC-ERDG）、多任务演化算法（G-MFEA、MATDE、MTEA-AD）、经典资源分配机制（CBCC、CCFR）以及各组件消融变体。
 5. **实验与测试 (`experiments/` & `tests/`)**
-    - 提供与论文主要表格（Table II、III、IV 等）一一对应的自动化执行脚本与完整的测试验证套件。
+   - 提供与论文主要表格（Table II、III、IV 等）一一对应的自动化执行脚本与完整的测试验证套件。

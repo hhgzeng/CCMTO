@@ -7,9 +7,11 @@ Contribution-Based Resource Allocation, and MTES-DAKG to solve Large-Scale Optim
 """
 
 from typing import Callable, Dict, List, Optional, Tuple, Union
+
 import numpy as np
 
 from decomposition.edg import EDG
+
 from .MTOPConstruction import MTOPConstruction
 from .ResourceAllocation import ResourceAllocation
 

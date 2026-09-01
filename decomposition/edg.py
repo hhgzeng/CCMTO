@@ -5,7 +5,7 @@ Decomposes a large-scale optimization problem into separable and nonseparable su
 using recursive differential grouping to minimize function evaluations.
 """
 
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Tuple, Union, cast
 import numpy as np
 
 
@@ -34,19 +34,19 @@ class EDG:
         self.dim = dim
 
         if np.isscalar(lower):
-            self.lower = np.full(dim, float(lower))
+            self.lower = np.full(dim, float(cast(float, lower)))
         else:
             self.lower = np.asarray(lower, dtype=float)
 
         if np.isscalar(upper):
-            self.upper = np.full(dim, float(upper))
+            self.upper = np.full(dim, float(cast(float, upper)))
         else:
             self.upper = np.asarray(upper, dtype=float)
 
         if delta is None:
             self.delta = (self.upper - self.lower) * 0.1
         elif np.isscalar(delta):
-            self.delta = np.full(dim, float(delta))
+            self.delta = np.full(dim, float(cast(float, delta)))
         else:
             self.delta = np.asarray(delta, dtype=float)
 
