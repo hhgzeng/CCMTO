@@ -135,7 +135,6 @@ class CMAES:
             fitness: Array of fitness/objective values (shape: [K]), lower is better
         """
         self.gen += 1
-        pop_size = len(fitness)
 
         # Sort solutions by fitness ascending (minimization)
         order = np.argsort(fitness)

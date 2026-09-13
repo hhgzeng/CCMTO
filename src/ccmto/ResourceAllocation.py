@@ -6,7 +6,7 @@ Dynamically allocates computational resources to MTOPs with the highest fitness 
 while pruning stagnant subtasks to conserve function evaluations.
 """
 
-from typing import Callable, List, Optional, Set, Tuple, Union
+from typing import Callable, List, Optional, Set, Tuple, Union, cast
 import numpy as np
 
 from .StagnantDetection import StagnantDetection
@@ -116,7 +116,7 @@ class ResourceAllocation:
         best_sols, best_fits, stag_set = opt.optimize(
             collaborator=best_x,
             stagnant_set=stag_set,
-            stagnant_detectors=detectors,
+            stagnant_detectors=cast(List[object], detectors),
             max_evals=max_fes,
             eval_counter=fe_counter,
         )
